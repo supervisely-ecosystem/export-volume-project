@@ -1,0 +1,12 @@
+<sly-field title="Download options" description="Select what to download">
+    <div class="mt10">
+        <el-checkbox v-model="state.download_pcd">Point clouds data (.pcd)</el-checkbox>
+    </div>
+    <div class="mt10">
+        <el-checkbox v-model="state.download_annotation">Annotations (.json)</el-checkbox>
+    </div>
+    <div class="mt10">
+        <el-checkbox v-model="state.download_photocontext">Photo context (.jpg / .png)</el-checkbox>
+    </div>
+</sly-field>
+

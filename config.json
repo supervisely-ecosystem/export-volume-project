@@ -1,0 +1,26 @@
+{
+  "name": "Export pointcloud episodes in supervisely format",
+  "type": "app",
+  "categories": [
+    "export",
+    "3D"
+  ],
+  "description": "Export project or dataset in Supervisely pointcloud episode format",
+  "docker_image": "supervisely/base-py-sdk:6.2.1",
+  "main_script": "src/main.py",
+  "modal_template": "src/modal.html",
+  "modal_template_state": {
+    "download_pcd": true,
+    "download_annotation": true,
+    "download_photocontext": true
+  },
+  "task_location": "workspace_tasks",
+  "isolate": true,
+  "headless": true,
+  "icon": "https://i.imgur.com/IIZpWnK.png",
+  "icon_background": "#FFFFFF",
+  "context_menu": {
+    "target": ["point_cloud_episodes_project", "point_cloud_episodes_dataset"],
+    "context_root": "Download as"
+  }
+}

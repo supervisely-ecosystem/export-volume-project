@@ -3,9 +3,10 @@ import globals as g
 import supervisely_lib as sly
 from supervisely_lib.project.volume_project import download_volume_project
 
-@g.my_app.callback("download_volume")
+
+@g.my_app.callback("download")
 @sly.timeit
-def download_volume(api: sly.Api, task_id, context, state, app_logger):
+def download(api: sly.Api, task_id, context, state, app_logger):
     if g.PROJECT_ID:
         project = api.project.get_info_by_id(g.PROJECT_ID)
     else:
@@ -58,7 +59,7 @@ def main():
         }
     )
 
-    g.my_app.run(initial_events=[{"command": "download_volume"}])
+    g.my_app.run(initial_events=[{"command": "download"}])
 
 
 if __name__ == "__main__":

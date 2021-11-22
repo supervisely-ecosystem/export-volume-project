@@ -1,5 +1,20 @@
 import os
+from pathlib import Path
+import sys
+from dotenv import load_dotenv
+from distutils.util import strtobool
+
 import supervisely_lib as sly
+
+root_source_dir = str(Path(sys.argv[0]).parents[1])
+print(f"App source directory: {root_source_dir}")
+sys.path.append(root_source_dir)
+
+# only for convenient debug
+debug_env_path = os.path.join(root_source_dir, "debug.env")
+secret_debug_env_path = os.path.join(root_source_dir, "secret_debug.env")
+load_dotenv(debug_env_path)
+load_dotenv(secret_debug_env_path, override=True)
 
 
 api: sly.Api = sly.Api.from_env()
@@ -22,4 +37,5 @@ except KeyError:
 
 assert DATASET_ID or PROJECT_ID
 
-download_volumes = os.getenv('modal.state.download_volumes').lower() in ('true', '1', 't')
+
+download_volumes = bool(strtobool(os.getenv('modal.state.download_volumes')))

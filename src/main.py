@@ -1,7 +1,6 @@
 import os
 import globals as g
 import supervisely_lib as sly
-from supervisely_lib.project.volume_project import download_volume_project
 
 
 @g.my_app.callback("download")
@@ -16,7 +15,7 @@ def download(api: sly.Api, task_id, context, state, app_logger):
     download_dir = os.path.join(g.my_app.data_dir, f'{project.id}_{project.name}')
     sly.fs.remove_dir(download_dir)
 
-    download_volume_project(api,
+    sly.download_volume_project(api,
                             project.id,
                             download_dir,
                             dataset_ids=[g.DATASET_ID] if g.DATASET_ID else None,

@@ -16,12 +16,12 @@ def download(api: sly.Api, task_id, context, state, app_logger):
     sly.fs.remove_dir(download_dir)
 
     sly.download_volume_project(api,
-                            project.id,
-                            download_dir,
-                            dataset_ids=[g.DATASET_ID] if g.DATASET_ID else None,
-                            download_volumes=g.download_volumes,
-                            log_progress=True,
-                            batch_size=g.BATCH_SIZE)
+                                project.id,
+                                download_dir,
+                                dataset_ids=[g.DATASET_ID] if g.DATASET_ID else None,
+                                download_volumes=g.download_volumes,
+                                log_progress=True,
+                                batch_size=g.BATCH_SIZE)
 
     full_archive_name = str(project.id) + '_' + project.name + '.tar'
     result_archive = os.path.join(g.my_app.data_dir, full_archive_name)

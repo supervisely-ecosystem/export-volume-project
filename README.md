@@ -49,4 +49,4 @@ Export Supervisely volume project or dataset. You can learn more about format an
 
 
 * `Team Files`->`Export-Supervisely-volumes-projects`->`<task_id>_<projectId>_<projectName>.tar`
-<img src=""/>
+<img src="https://imgur.com/02KtweO.png"/>

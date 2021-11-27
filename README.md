@@ -1,5 +1,5 @@
 <div align="center" markdown>
-<img src="https://imgur.com/qeKoBzs.png">
+<img src="https://imgur.com/7IHY0Gs.png">
 
 # Export Supervisely Volumes
 

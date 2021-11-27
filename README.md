@@ -22,33 +22,31 @@
 
 ## Overview
 
-Export Supervisely volume project or dataset. You can learn more about format and its structure by reading [documentation](https://docs.supervise.ly/data-organization/00_ann_format_navi/07_supervisely_format_pointcloud_episode).
-
-Backward compatible with [`Import pointcloud episodes`](https://ecosystem.supervise.ly/apps/import-pointcloud-episode) app
+Export Supervisely volume project or dataset. You can learn more about format and its structure by reading [documentation]().
 
 # How To Run 
 
-1. Add [Export Supervisely pointcloud episodes](https://ecosystem.supervise.ly/apps/export-pointcloud-episode) to your team from Ecosystem
+1. Add [Export Supervisely volume project]() to your team from Ecosystem
 
-<img data-key="sly-module-link" data-module-slug="supervisely-ecosystem/export-pointcloud-episode" src="https://i.imgur.com/cnXCPVx.png" width="450px" style='padding-bottom: 20px'/>  
+<img data-key="sly-module-link" data-module-slug="supervisely-ecosystem/export-pointcloud-episode" src="https://i.imgur.com/" width="450px" style='padding-bottom: 20px'/>  
 
-2. Run app from the context menu of **Pointcloud Episodes Project** or **Images Dataset** -> `Download via app` -> `Export pointcloud episodes in supervisely format`
+2. Run app from the context menu of **Volume Project** or **Volumes Dataset** -> `Download via app` -> `Export Supervisely volume project in supervisely format`
 
-<img src="https://i.imgur.com/CG9HEZB.png"/>
+<img src=""/>
 
 3. Define export settings in modal window and press the **Run** button
 
 <div align="center" markdown>
-<img src="https://i.imgur.com/BqrVe4N.png" width="600"/>
+<img src="" width="600"/>
 </div>
 
 # How To Use 
 
 1. Wait for the app to process your data, once done, a link for download will become available
-<img src="https://i.imgur.com/keujQYZ.png"/>
+<img src=""/>
 
 2. Result archive will be available for download by link at `Tasks` page or from `Team Files` by the following path:
 
 
-* `Team Files`->`Export-Supervisely-pointcloud-episodes`->`<task_id>_<projectId>_<projectName>.tar`
-<img src="https://i.imgur.com/0VlxQYv.png"/>
+* `Team Files`->`Export-Supervisely-volumes-projects`->`<task_id>_<projectId>_<projectName>.tar`
+<img src=""/>

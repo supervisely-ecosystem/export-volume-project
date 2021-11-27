@@ -1,0 +1,27 @@
+# coding: utf-8
+from supervisely_lib.video_annotation.key_id_map import KeyIdMap
+from supervisely_lib.api.module_api import ApiField
+from supervisely_lib.api.video.video_figure_api import VideoFigureApi
+import sdk_part.volume_annotation.constants as const
+
+
+class VolumeFigureApi(VideoFigureApi):
+    def create(self, volume_id, object_id, slice_index, normal, geometry_json, geometry_type):
+        return super().create(volume_id,
+                              object_id,
+                              {ApiField.META: {const.SLICE_INDEX: slice_index, const.NORMAL: normal}},
+                              geometry_json,
+                              geometry_type)
+
+    def append_bulk(self, volume_id, figures, normal, key_id_map: KeyIdMap):
+        keys = []
+        figures_json = []
+        for figure in figures:
+            keys.append(figure.key())
+            fig_json = figure.to_json(key_id_map, save_meta=True)
+
+            slice_index = fig_json[ApiField.META][ApiField.FRAME]
+            fig_json[ApiField.META] = {const.SLICE_INDEX: slice_index, const.NORMAL: normal}
+            figures_json.append(fig_json)
+
+        self._append_bulk(volume_id, figures_json, keys, key_id_map)

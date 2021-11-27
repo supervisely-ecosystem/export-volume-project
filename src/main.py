@@ -2,10 +2,15 @@ import os
 import globals as g
 import supervisely_lib as sly
 
+from sdk_part.project.volume_project import download_volume_project
+from sdk_part.api.volume.volume_api import VolumeApi
+
 
 @g.my_app.callback("download")
 @sly.timeit
 def download(api: sly.Api, task_id, context, state, app_logger):
+    setattr(api, 'volume', VolumeApi(api))  # custom extension for api instance
+
     if g.PROJECT_ID:
         project = api.project.get_info_by_id(g.PROJECT_ID)
     else:
@@ -15,13 +20,13 @@ def download(api: sly.Api, task_id, context, state, app_logger):
     download_dir = os.path.join(g.my_app.data_dir, f'{project.id}_{project.name}')
     sly.fs.remove_dir(download_dir)
 
-    sly.download_volume_project(api,
-                                project.id,
-                                download_dir,
-                                dataset_ids=[g.DATASET_ID] if g.DATASET_ID else None,
-                                download_volumes=g.download_volumes,
-                                log_progress=True,
-                                batch_size=g.BATCH_SIZE)
+    download_volume_project(api,
+                            project.id,
+                            download_dir,
+                            dataset_ids=[g.DATASET_ID] if g.DATASET_ID else None,
+                            download_volumes=g.download_volumes,
+                            log_progress=True,
+                            batch_size=g.BATCH_SIZE)
 
     full_archive_name = str(project.id) + '_' + project.name + '.tar'
     result_archive = os.path.join(g.my_app.data_dir, full_archive_name)

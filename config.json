@@ -1,26 +1,23 @@
 {
-  "name": "Export pointcloud episodes in supervisely format",
+  "name": "Export volumes project in supervisely format",
   "type": "app",
   "categories": [
-    "export",
-    "3D"
+    "export"
   ],
-  "description": "Export project or dataset in Supervisely pointcloud episode format",
-  "docker_image": "supervisely/base-py-sdk:6.2.1",
+  "description": "Export project or dataset in Supervisely volume format",
+  "docker_image": "supervisely/base-py-sdk:6.2.8",
   "main_script": "src/main.py",
   "modal_template": "src/modal.html",
   "modal_template_state": {
-    "download_pcd": true,
-    "download_annotation": true,
-    "download_photocontext": true
+    "download_volumes": true
   },
   "task_location": "workspace_tasks",
   "isolate": true,
   "headless": true,
-  "icon": "https://i.imgur.com/IIZpWnK.png",
+  "icon": "https://img.icons8.com/external-outline-satawat-anukul/64/000000/external-medical-madical-outline-outline-satawat-anukul-24.png",
   "icon_background": "#FFFFFF",
   "context_menu": {
-    "target": ["point_cloud_episodes_project", "point_cloud_episodes_dataset"],
+    "target": ["volumes_project", "volumes_dataset"],
     "context_root": "Download as"
   }
 }

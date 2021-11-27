@@ -1,10 +1,10 @@
 {
-  "name": "Export volumes project in supervisely format",
+  "name": "Export volumes in Supervisely format",
   "type": "app",
   "categories": [
     "export"
   ],
-  "description": "Export project or dataset in Supervisely volume format",
+  "description": "Export project or dataset in Supervisely volumes format",
   "docker_image": "supervisely/base-py-sdk:6.2.8",
   "main_script": "src/main.py",
   "modal_template": "src/modal.html",
@@ -14,7 +14,7 @@
   "task_location": "workspace_tasks",
   "isolate": true,
   "headless": true,
-  "icon": "https://imgur.com/WkNlkwa.png",
+  "icon": "https://imgur.com/E3cg4Fm.png",
   "icon_background": "#FFFFFF",
   "context_menu": {
     "target": ["volumes_project", "volumes_dataset"],

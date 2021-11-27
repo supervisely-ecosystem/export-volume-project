@@ -4,7 +4,7 @@ import supervisely_lib as sly
 
 from sdk_part.project.volume_project import download_volume_project
 from sdk_part.api.volume.volume_api import VolumeApi
-
+import stl_to_nrrd
 
 @g.my_app.callback("download")
 @sly.timeit
@@ -27,6 +27,8 @@ def download(api: sly.Api, task_id, context, state, app_logger):
                             download_volumes=g.download_volumes,
                             log_progress=True,
                             batch_size=g.BATCH_SIZE)
+
+    stl_to_nrrd.convert_all(download_dir)
 
     full_archive_name = str(project.id) + '_' + project.name + '.tar'
     result_archive = os.path.join(g.my_app.data_dir, full_archive_name)

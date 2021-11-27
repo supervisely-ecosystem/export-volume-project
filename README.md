@@ -1,11 +1,11 @@
 <div align="center" markdown>
-<img src="">
+<img src="https://imgur.com/IT8p71r">
 
 # Export Supervisely volume project
 
 <p align="center">
-  <a href="#Overview">Overview</a> •
-  <a href="#How-To-Run">How To Run</a> •
+  <a href="#Overview">Overview</a>
+  <a href="#How-To-Run">How To Run</a>
   <a href="#How-To-Use">How To Use</a>
 </p>
 

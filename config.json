@@ -14,7 +14,7 @@
   "task_location": "workspace_tasks",
   "isolate": true,
   "headless": true,
-  "icon": "https://img.icons8.com/external-outline-satawat-anukul/64/000000/external-medical-madical-outline-outline-satawat-anukul-24.png",
+  "icon": "https://imgur.com/WkNlkwa",
   "icon_background": "#FFFFFF",
   "context_menu": {
     "target": ["volumes_project", "volumes_dataset"],

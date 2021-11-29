@@ -2,7 +2,6 @@ import os
 import glob
 import nrrd
 import trimesh
-import numpy as np
 import supervisely_lib as sly
 
 stl_extension = '.stl'
@@ -28,12 +27,8 @@ def convert_stl_to_nrrd(stl_path: str, nrrd_path: str):
         raise ValueError('File extension must be .stl, not {}'.format(sly.fs.get_file_ext(stl_path)))
 
     mesh = trimesh.load(stl_path)
-    try:
-        voxel = mesh.voxelized(pitch=1.0)
-        voxel = voxel.fill()
-        np_mask = voxel.matrix.astype(int)
-        nrrd.write(nrrd_path, np_mask)
-    except IndexError:
-        sly.logger.warn(f"Input stl file {stl_path} is empty, check your input data")
-        np_mask = np.zeros((1, 1, 1))
-        nrrd.write(nrrd_path, np_mask)
+    voxel = mesh.voxelized(pitch=1.0)
+    voxel = voxel.fill()
+    np_mask = voxel.matrix.astype(int)
+    nrrd.write(nrrd_path, np_mask)
+

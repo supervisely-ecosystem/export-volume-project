@@ -3,6 +3,7 @@
 from supervisely_lib.video_annotation.key_id_map import KeyIdMap
 from supervisely_lib.api.entity_annotation.object_api import ObjectApi
 from supervisely_lib.api.module_api import ApiField
+from supervisely_lib.sly_logger import logger
 from sdk_part.volume_annotation.constants import VOLUME_ID
 from sdk_part.volume_annotation.volume_object_collection import VolumeObjectCollection
 
@@ -18,11 +19,13 @@ class VolumeObjectApi(ObjectApi):
 
     def get_interpolation(self, volume_id, objects: VolumeObjectCollection, key_id_map):
         results = []
+
         for object in objects:
             object_id = key_id_map.get_object_id(object.key())
-            response = self._get_interpolation(volume_id, object_id)
-            if response.status_code == 200:
+            try:
+                response = self._get_interpolation(volume_id, object_id)
                 results.append(response.content)
-            else:
+            except Exception as e:
+                logger.warn(f"Error while building interpolation on server for object {object_id} : {e}")
                 results.append(None)
         return results

@@ -16,7 +16,7 @@
   "task_location": "workspace_tasks",
   "isolate": true,
   "headless": true,
-  "icon": "https://imgur.com/E3cg4Fm.png",
+  "icon": "https://img.icons8.com/color/100/000000/xray.png",
   "icon_background": "#FFFFFF",
   "context_menu": {
     "target": ["volumes_project", "volumes_dataset"],

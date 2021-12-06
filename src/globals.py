@@ -38,4 +38,6 @@ except KeyError:
 assert DATASET_ID or PROJECT_ID
 
 
-download_volumes = bool(strtobool(os.getenv('modal.state.download_volumes')))
+download_volumes = bool(strtobool(os.getenv('modal.state.downloadVolumes')))
+download_annotations = True #bool(strtobool(os.getenv('modal.state.downloadAnnotations')))
+convert_surface_to_mask = bool(strtobool(os.getenv('modal.state.convertSurfaceToMask')))

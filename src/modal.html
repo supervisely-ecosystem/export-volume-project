@@ -3,7 +3,7 @@
         <el-checkbox v-model="state.downloadAnnotations" disabled>Download annotations (.json)</el-checkbox>
     </div>
     <div class="mt10">
-        <el-checkbox v-model="state.downloadVolumes">Download volume data (.nrrd)</el-checkbox>
+        <el-checkbox v-model="state.downloadVolumes" disabled>Download volume data (.nrrd)</el-checkbox>
     </div>
     <div class="mt10">
         <el-checkbox v-model="state.convertSurfaceToMask" disabled>Convert closed mesh surfaces (.stl) to 3d masks (.nrrd) and save both files</el-checkbox>

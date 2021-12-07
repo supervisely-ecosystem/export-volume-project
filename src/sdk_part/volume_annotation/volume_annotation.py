@@ -31,7 +31,7 @@ class VolumeAnnotation:
         self._tags = take_with_default(tags, VideoTagCollection())
         self._description = description
         self._key = take_with_default(key, uuid.uuid4())
-        self._spacial_figures = take_with_default(spacial_figures, [])
+        self._spatial_figures = take_with_default(spatial_figures, [])
 
     @property
     def volume_meta(self):
@@ -110,7 +110,7 @@ class VolumeAnnotation:
             const.TAGS: self.tags.to_json(key_id_map),
             const.OBJECTS: self.objects.to_json(key_id_map),
             const.PLANES: [],
-            const.SPATIAL_FIGURES: [figure.to_json(key_id_map) for figure in self.spatial_figures]
+            const.SPATIAL_FIGURES: [figure.to_json(key_id_map) for figure in self._spatial_figures]
         }
 
         for plane in [self.axial, self.sagittal, self.coronal]:

@@ -6,6 +6,7 @@ from sdk_part.project.volume_project import download_volume_project
 from sdk_part.api.volume.volume_api import VolumeApi
 import stl_to_nrrd
 
+
 @g.my_app.callback("download")
 @sly.timeit
 def download(api: sly.Api, task_id, context, state, app_logger):
@@ -36,7 +37,7 @@ def download(api: sly.Api, task_id, context, state, app_logger):
     app_logger.info("Result directory is archived")
 
     upload_progress = []
-    remote_archive_path = "/Export-Supervisely-volumes-projects/{}_{}".format(task_id, full_archive_name)
+    remote_archive_path = "/export-supervisely-volumes-projects/{}_{}".format(task_id, full_archive_name)
     remote_archive_path = api.file.get_free_name(g.TEAM_ID, remote_archive_path)
 
     def _print_progress(monitor, upload_progress):

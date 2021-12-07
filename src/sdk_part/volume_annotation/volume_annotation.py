@@ -6,6 +6,8 @@ from supervisely_lib.video_annotation.video_tag_collection import VideoTagCollec
 
 from sdk_part.volume_annotation.volume_object_collection import VolumeObjectCollection
 from sdk_part.volume_annotation.plane import Plane
+from sdk_part.volume_annotation.closed_surface_mesh import ClosedSurfaceMesh
+from sdk_part.volume_annotation.volume_figure import VolumeFigure
 import sdk_part.volume_annotation.constants as const
 
 
@@ -17,6 +19,7 @@ class VolumeAnnotation:
                  sagittal: Plane = None,
                  coronal: Plane = None,
                  tags: VideoTagCollection = None,
+                 spatial_figures = None,
                  description: str = "",
                  key=None):
 
@@ -28,6 +31,7 @@ class VolumeAnnotation:
         self._tags = take_with_default(tags, VideoTagCollection())
         self._description = description
         self._key = take_with_default(key, uuid.uuid4())
+        self._spatial_figures = take_with_default(spatial_figures, [])
 
     @property
     def volume_meta(self):
@@ -48,6 +52,10 @@ class VolumeAnnotation:
     @property
     def objects(self):
         return self._objects
+
+    @property
+    def spatial_figures(self):
+        return self._spatial_figures
 
     @property
     def tags(self):
@@ -83,12 +91,18 @@ class VolumeAnnotation:
             else:
                 raise RuntimeError(f'Wrong plane type {plane_name}!')
 
+        spatial_figures = []
+        for figure_json in data.get(const.SPATIAL_FIGURES, []):
+            figure = VolumeFigure.from_json(figure_json, objects, key_id_map)
+            spatial_figures.append(figure)
+
         return cls(volume_meta=volume_meta,
                    objects=objects,
                    axial=planes[const.AXIAL],
                    sagittal=planes[const.SAGITTAL],
                    coronal=planes[const.CORONAL],
                    tags=tags,
+                   spatial_figures=spatial_figures,
                    description=description,
                    key=volume_key)
 
@@ -99,7 +113,8 @@ class VolumeAnnotation:
             const.KEY: self.key().hex,
             const.TAGS: self.tags.to_json(key_id_map),
             const.OBJECTS: self.objects.to_json(key_id_map),
-            const.PLANES: []
+            const.PLANES: [],
+            const.SPATIAL_FIGURES: [figure.to_json(key_id_map) for figure in self._spatial_figures]
         }
 
         for plane in [self.axial, self.sagittal, self.coronal]:
@@ -112,11 +127,14 @@ class VolumeAnnotation:
                 res_json[const.VOLUME_ID] = volume_id
         return res_json
 
-    def clone(self, volume_meta=None, objects=None, axial=None, sagittal=None, coronal=None, tags=None, description=None):
+    def clone(self, volume_meta=None, objects=None, axial=None, sagittal=None, coronal=None, tags=None,
+              spatial_figures=None,
+              description=None):
         return VolumeAnnotation(volume_meta=take_with_default(volume_meta, self.volume_meta),
                                 axial=take_with_default(axial, self.axial),
                                 coronal=take_with_default(coronal, self.coronal),
                                 sagittal=take_with_default(sagittal, self.sagittal),
                                 objects=take_with_default(objects, self.objects),
                                 tags=take_with_default(tags, self.tags),
+                                spatial_figures=take_with_default(tags, self.spatial_figures),
                                 description=take_with_default(description, self.description))

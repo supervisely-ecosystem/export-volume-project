@@ -25,3 +25,4 @@ META = 'meta'
 DESCRIPTION = 'description'
 
 PLANE_NAMES = [AXIAL, SAGITTAL, CORONAL]
+SPATIAL_FIGURES = 'spatialFigures'

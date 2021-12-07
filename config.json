@@ -1,22 +1,25 @@
 {
-  "message": "Traceback (most recent call last):\n  File \"/Users/maxim/work/sly_apps/export-volume-project/venv/lib/python3.8/site-packages/supervisely_lib/app/app_service.py\", line 191, in handle_message_sync\n    self.callbacks[command](api=user_public_api,\n  File \"/Users/maxim/work/sly_apps/export-volume-project/venv/lib/python3.8/site-packages/supervisely_lib/decorators/profile.py\", line 11, in wrapper_timer\n    value = func(*args, **kwargs)\n  File \"/Users/maxim/work/sly_apps/export-volume-project/src/main.py\", line 24, in download\n    download_volume_project(api,\n  File \"/Users/maxim/work/sly_apps/export-volume-project/src/sdk_part/project/volume_project.py\", line 107, in download_volume_project\n    volume_annotation = VolumeAnnotation.from_json(ann_json, project_fs.meta, key_id_map)\n  File \"/Users/maxim/work/sly_apps/export-volume-project/src/sdk_part/volume_annotation/volume_annotation.py\", line 84, in from_json\n    raise RuntimeError(f'Wrong plane type {plane_name}!')\nRuntimeError: Wrong plane type spatial!\n",
-  "main_name": "download",
-  "exc_str": "RuntimeError('Wrong plane type spatial!')",
-  "event_type": "EventType.TASK_CRASHED",
-  "timestamp": "2021-12-06T13:43:33.571Z",
-  "level": "error",
-  "stack": [
-    "Traceback (most recent call last):",
-    "  File \"/Users/maxim/work/sly_apps/export-volume-project/venv/lib/python3.8/site-packages/supervisely_lib/app/app_service.py\", line 191, in handle_message_sync",
-    "    self.callbacks[command](api=user_public_api,",
-    "  File \"/Users/maxim/work/sly_apps/export-volume-project/venv/lib/python3.8/site-packages/supervisely_lib/decorators/profile.py\", line 11, in wrapper_timer",
-    "    value = func(*args, **kwargs)",
-    "  File \"/Users/maxim/work/sly_apps/export-volume-project/src/main.py\", line 24, in download",
-    "    download_volume_project(api,",
-    "  File \"/Users/maxim/work/sly_apps/export-volume-project/src/sdk_part/project/volume_project.py\", line 107, in download_volume_project",
-    "    volume_annotation = VolumeAnnotation.from_json(ann_json, project_fs.meta, key_id_map)",
-    "  File \"/Users/maxim/work/sly_apps/export-volume-project/src/sdk_part/volume_annotation/volume_annotation.py\", line 84, in from_json",
-    "    raise RuntimeError(f'Wrong plane type {plane_name}!')",
-    "RuntimeError: Wrong plane type spatial!"
-  ]
+  "name": "Export volumes in Supervisely format",
+  "type": "app",
+  "categories": [
+    "export"
+  ],
+  "description": "Export project or dataset in Supervisely volumes format",
+  "docker_image": "supervisely/base-py-sdk:6.2.8",
+  "main_script": "src/main.py",
+  "modal_template": "src/modal.html",
+  "modal_template_state": {
+    "downloadVolumes": true,
+    "convertSurfaceToMask": true,
+    "downloadAnnotations": true
+  },
+  "task_location": "workspace_tasks",
+  "isolate": true,
+  "headless": true,
+  "icon": "https://img.icons8.com/color/100/000000/xray.png",
+  "icon_background": "#FFFFFF",
+  "context_menu": {
+    "target": ["volumes_project", "volumes_dataset"],
+    "context_root": "Download as"
+  }
 }

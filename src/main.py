@@ -31,6 +31,8 @@ def download(api: sly.Api, task_id, context, state, app_logger):
 
     stl_to_nrrd.convert_all(download_dir)
 
+    return
+
     full_archive_name = str(project.id) + '_' + project.name + '.tar'
     result_archive = os.path.join(g.my_app.data_dir, full_archive_name)
     sly.fs.archive_directory(download_dir, result_archive)

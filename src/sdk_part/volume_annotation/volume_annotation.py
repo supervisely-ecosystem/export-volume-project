@@ -54,6 +54,10 @@ class VolumeAnnotation:
         return self._objects
 
     @property
+    def spatial_figures(self):
+        return self._spatial_figures
+
+    @property
     def tags(self):
         return self._tags
 

@@ -48,18 +48,18 @@ class VolumeDataset(VideoDataset):
         rimg_dir = os.path.join(self.directory, self.related_files_dir_name, item_name)
         return rimg_dir
 
-    def get_interpolation_path(self, item_name, object):
+    def get_interpolation_path(self, item_name, figure):
         rel_dir = self.get_related_files_path(item_name)
-        return os.path.join(rel_dir, object.key().hex + '.stl')
+        return os.path.join(rel_dir, figure.key().hex + '.stl')
 
-    def set_interpolation(self, volume_name, objects, interpolations_bytes):
-        for obj, interpolation_bytes in zip(objects, interpolations_bytes):
-            if not interpolation_bytes:
-                continue
-            dst_interpolation_path = self.get_interpolation_path(volume_name, obj)
-            mkdir(os.path.dirname(dst_interpolation_path))
-            with open(dst_interpolation_path, 'wb') as f:
-                f.write(interpolation_bytes)
+    # def set_interpolation(self, volume_name, objects, interpolations_bytes):
+    #     for obj, interpolation_bytes in zip(objects, interpolations_bytes):
+    #         if not interpolation_bytes:
+    #             continue
+    #         dst_interpolation_path = self.get_interpolation_path(volume_name, obj)
+    #         mkdir(os.path.dirname(dst_interpolation_path))
+    #         with open(dst_interpolation_path, 'wb') as f:
+    #             f.write(interpolation_bytes)
 
     def get_item_paths(self, item_name) -> VolumeItemPaths:
         volume_path = self.get_img_path(item_name)
@@ -116,10 +116,20 @@ def download_volume_project(api, project_id, dest_dir, dataset_ids=None, downloa
                                          ann=volume_annotation,
                                          _validate_item=False)
 
-                vol_interp = api.volume.object.get_interpolation(volume_id,
-                                                                 volume_annotation.objects,
-                                                                 key_id_map)
-                dataset_fs.set_interpolation(volume_name, volume_annotation.objects, vol_interp)
+                mesh_ids = []
+                mesh_paths = []
+                for sf in volume_annotation.spatial_figures:
+                    figure_key = sf.key()
+                    figure_id = key_id_map.get_figure_id(figure_key)
+                    mesh_ids.append(figure_id)
+                    figure_path = dataset_fs.get_interpolation_path(volume_name, sf)
+                    mesh_paths.append(figure_path)
+
+                api.volume.figure.download_geometries_paths(mesh_ids, mesh_paths)
+                # vol_interp = api.volume.object.get_interpolation(volume_id,
+                #                                                  volume_annotation.objects,
+                #                                                  key_id_map)
+                #dataset_fs.set_interpolation(volume_name, volume_annotation.objects, vol_interp)
 
             if log_progress:
                 ds_progress.iters_done_report(len(batch))

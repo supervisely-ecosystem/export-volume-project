@@ -1,21 +1,13 @@
 import os
-import glob
 import math
 import nrrd
 import trimesh
 import numpy as np
-import supervisely_lib as sly
-
 from supervisely_lib.io.fs import get_file_name_with_ext
 
 
 stl_extension = '.stl'
 nrrd_extension = '.nrrd'
-
-
-# input_nrrd_path = '/data/CTChest.nrrd'
-# input_stl_path = '/data/CTChest_Lungs.stl'
-# output_path = '/output/Lungs.npy'
 
 
 def convert_all(dir_path):
@@ -58,6 +50,7 @@ def matrix_from_nrrd_header(header):
 
 def vec3_mat4(vec, mat):
     v = mat @ [*vec, 1]
+
     return (v / v[3])[:-1]
 
 
@@ -114,3 +107,4 @@ def convert_stl_to_nrrd(nrrd_path, stl_path, output_file_path):
         },
         compression_level=9
     )
+

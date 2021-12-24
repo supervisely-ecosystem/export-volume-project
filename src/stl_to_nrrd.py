@@ -124,4 +124,3 @@ def convert_stl_to_nrrd(nrrd_path, stl_path, output_file_path):
         },
         compression_level=9
     )
-

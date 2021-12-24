@@ -6,6 +6,6 @@
         <el-checkbox v-model="state.downloadVolumes">Download volume data (.nrrd)</el-checkbox>
     </div>
     <div class="mt10">
-        <el-checkbox v-model="state.convertSurfaceToMask" disabled>Convert closed mesh surfaces (.stl) to 3d masks (.nrrd) and save both files</el-checkbox>
+        <el-checkbox v-model="state.convertSurfaceToMask" :disabled="!state.downloadVolumes" >Convert closed mesh surfaces (.stl) to 3d masks (.nrrd) and save both files</el-checkbox>
     </div>
 </div>

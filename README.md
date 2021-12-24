@@ -24,6 +24,9 @@
 
 Export Supervisely volume project or dataset. You can learn more about format and its structure by reading [documentation](https://docs.supervise.ly/data-organization/00_ann_format_navi/08_supervisely_format_volume).
 
+Application key points:
+- 
+
 # How To Run 
 
 1. Add  [Export volumes project in supervisely format](https://ecosystem.supervise.ly/apps/export-volume-project)
@@ -37,7 +40,7 @@ Export Supervisely volume project or dataset. You can learn more about format an
 3. Define export settings in modal window and press the **Run** button
 
 <div align="center" markdown>
-<img src="https://i.imgur.com/7XWIjHz.png" width="450"/>
+<img src="https://i.imgur.com/7XWIjHz.png" width="650"/>
 </div>
 
 # How To Use 

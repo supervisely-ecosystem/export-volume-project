@@ -29,7 +29,8 @@ def download(api: sly.Api, task_id, context, state, app_logger):
                             log_progress=True,
                             batch_size=g.BATCH_SIZE)
 
-    stl_to_nrrd.convert_all(download_dir)
+    if g.convert_surface_to_mask:
+        stl_to_nrrd.convert_all(download_dir)
 
     full_archive_name = str(project.id) + '_' + project.name + '.tar'
     result_archive = os.path.join(g.my_app.data_dir, full_archive_name)

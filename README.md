@@ -25,7 +25,8 @@
 Export Supervisely volume project or dataset. You can learn more about format and its structure by reading [documentation](https://docs.supervise.ly/data-organization/00_ann_format_navi/08_supervisely_format_volume).
 
 Application key points:
-- 
+- Download volumes in `.nrrd` and `stl` formats
+- Convert `.stl` to `.nnrd`
 
 # How To Run 
 

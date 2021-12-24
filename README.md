@@ -37,7 +37,7 @@ Export Supervisely volume project or dataset. You can learn more about format an
 3. Define export settings in modal window and press the **Run** button
 
 <div align="center" markdown>
-<img src="https://i.imgur.com/1YSkqUL.png" width="450"/>
+<img src="https://i.imgur.com/7XWIjHz.png" width="450"/>
 </div>
 
 # How To Use 

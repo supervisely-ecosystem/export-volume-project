@@ -28,6 +28,11 @@ Application key points:
 - Download volumes with annotations in `.nrrd` and `stl` formats
 - Convert `.stl` to `.nnrd` segmentation
 
+
+<p float="center">
+  <img src="https://github.com/supervisely-ecosystem/export-volume-project/releases/download/v1.0.1/volume_result.gif?raw=true" style="width:80%;"/>
+</p>    
+
 # How To Run 
 
 1. Add  [Export volumes project in supervisely format](https://ecosystem.supervise.ly/apps/export-volume-project)

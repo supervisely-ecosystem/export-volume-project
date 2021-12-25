@@ -29,7 +29,7 @@ Application key points:
 - Convert `.stl` to `.nnrd` segmentation
 
 
-<p float="center">
+<p align="center">
   <img src="https://github.com/supervisely-ecosystem/export-volume-project/releases/download/v1.0.1/volume_result.gif?raw=true" style="width:80%;"/>
 </p>    
 

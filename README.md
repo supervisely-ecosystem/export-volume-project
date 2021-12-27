@@ -27,21 +27,23 @@ Export Supervisely volume project or dataset. You can learn more about format an
 
 Application key points:
 - Download annotations in `.json` and `.stl` formats
-- Download volumes with annotations in `.nrrd` and `stl` formats
-- Convert closed mesh surfaces `.stl` to 3d masks `.nrrd`
+- Download volumes data in `.nrrd` format
+- Convert closed mesh surfaces (`.stl`) to 3d masks (`.nrrd`)
+
+<div>
+  <table>
+    <tr style="width: 100%">
+      <td>
+        <img src="https://github.com/supervisely-ecosystem/export-volume-project/releases/download/v1.0.1/interface.gif?raw=true" style="width:150%;"/>
+      </td>
+      <td>
+        <img src="https://github.com/supervisely-ecosystem/export-volume-project/releases/download/v1.0.1/slicer_result.gif?raw=true" style="width:150%;"/>
+      </td>
+    </tr>
+  </table
+</div>
 
 
-<table>
-  <tr style="width: 100%">
-    <td>
-       <img src="https://github.com/supervisely-ecosystem/export-volume-project/releases/download/v1.0.1/interface.gif?raw=true" style="width:150%;"/>
-    </td>
-    <td>
-<img src="https://github.com/supervisely-ecosystem/export-volume-project/releases/download/v1.0.1/slicer_result.gif?raw=true" style="width:150%;"/>
-    </td>
-      </tr>
-</table
- 
 
 # How To Run 
 

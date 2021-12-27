@@ -31,9 +31,17 @@ Application key points:
 - Convert closed mesh surfaces `.stl` to 3d masks `.nrrd`
 
 
-<p align="center">
-  <img src="https://github.com/supervisely-ecosystem/export-volume-project/releases/download/v1.0.1/volume_result.gif?raw=true" style="width:80%;"/>
-</p>    
+<table>
+  <tr style="width: 100%">
+    <td>
+       <img src="https://github.com/supervisely-ecosystem/export-volume-project/releases/download/v1.0.1/interface.gif?raw=true" style="width:150%;"/>
+    </td>
+    <td>
+<img src="https://github.com/supervisely-ecosystem/export-volume-project/releases/download/v1.0.1/slicer_result.gif?raw=true" style="width:150%;"/>
+    </td>
+      </tr>
+</table
+ 
 
 # How To Run 
 

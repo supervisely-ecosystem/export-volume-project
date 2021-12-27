@@ -41,3 +41,6 @@ assert DATASET_ID or PROJECT_ID
 download_volumes = bool(strtobool(os.getenv('modal.state.downloadVolumes')))
 download_annotations = True #bool(strtobool(os.getenv('modal.state.downloadAnnotations')))
 convert_surface_to_mask = bool(strtobool(os.getenv('modal.state.convertSurfaceToMask')))
+
+if download_volumes is False:
+    convert_surface_to_mask = False

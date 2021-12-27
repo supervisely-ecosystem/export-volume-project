@@ -34,9 +34,11 @@ Application key points:
   <table>
     <tr style="width: 100%">
       <td>
+        <b>Volumes Data in Supervisely format</b>
         <img src="https://github.com/supervisely-ecosystem/export-volume-project/releases/download/v1.0.1/interface.gif?raw=true" style="width:150%;"/>
       </td>
       <td>
+        <b>Exported .stl with 3d segmentation masks</b>
         <img src="https://github.com/supervisely-ecosystem/export-volume-project/releases/download/v1.0.1/slicer_result.gif?raw=true" style="width:150%;"/>
       </td>
     </tr>

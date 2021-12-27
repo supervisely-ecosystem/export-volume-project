@@ -25,8 +25,9 @@
 Export Supervisely volume project or dataset. You can learn more about format and its structure by reading [documentation](https://docs.supervise.ly/data-organization/00_ann_format_navi/08_supervisely_format_volume).
 
 Application key points:
+- Download annotations in `.json` and `.stl` formats
 - Download volumes with annotations in `.nrrd` and `stl` formats
-- Convert `.stl` to `.nnrd` segmentation
+- Convert closed mesh surfaces `.stl` to 3d masks `.nrrd`
 
 
 <p align="center">
@@ -37,7 +38,7 @@ Application key points:
 
 1. Add  [Export volumes project in supervisely format](https://ecosystem.supervise.ly/apps/export-volume-project)
 
-<img data-key="sly-module-link" data-module-slug="supervisely-ecosystem/export-volume-project" src="https://imgur.com/WZFpiDE.png" width="450px" style='padding-bottom: 20px'/>  
+<img data-key="sly-module-link" data-module-slug="supervisely-ecosystem/export-volume-project" src="https://imgur.com/WZFpiDE.png" width="450px" style='padding-bottom: 20px'/>
 
 2. Run app from the context menu of **Volume Project** or **Volumes Dataset** -> `Download via app` -> `Export Supervisely volume project in supervisely format`
 

@@ -87,8 +87,8 @@ def convert_stl_to_nrrd(nrrd_path, stl_path, output_file_path):
     try:
         voxel = mesh.voxelized(pitch=1.0)
     except Exception as e:
-        sly.logger.warning(e)
-        sly.logger.warning("Couldn't voxelize file {!r}: {}".format(get_file_name_with_ext(stl_path), str(e)), extra={'file_path': stl_path})
+        sly.logger.error(e)
+        sly.logger.warning("Couldn't voxelize file {!r}".format(get_file_name_with_ext(input_stl_path)), extra={'file_path': input_stl_path})
         return
         
     voxel = voxel.fill()

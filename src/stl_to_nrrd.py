@@ -3,6 +3,7 @@ import math
 import nrrd
 import trimesh
 import numpy as np
+import supervisely_lib as sly
 from supervisely_lib.io.fs import get_file_name_with_ext
 
 
@@ -83,7 +84,13 @@ def convert_stl_to_nrrd(nrrd_path, stl_path, output_file_path):
 
     center = [(min_v + max_v) / 2 for min_v, max_v in zip(min_vec, max_vec)]
 
-    voxel = mesh.voxelized(pitch=1.0)
+    try:
+        voxel = mesh.voxelized(pitch=1.0)
+    except Exception as e:
+        sly.logger.error(e)
+        sly.logger.warning("Couldn't voxelize file {!r}".format(get_file_name_with_ext(stl_path)), extra={'file_path': stl_path})
+        return
+        
     voxel = voxel.fill()
 
     mask = voxel.matrix.astype(np.short)

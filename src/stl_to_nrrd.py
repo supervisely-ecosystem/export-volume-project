@@ -4,31 +4,52 @@ import nrrd
 import trimesh
 import numpy as np
 import supervisely_lib as sly
-from supervisely_lib.io.fs import get_file_name_with_ext
-
+from supervisely_lib.io.fs import get_file_name_with_ext, mkdir
+from supervisely_lib.io.json import load_json_file
+# from supervisely_lib.video_annotation.key_id_map import KeyIdMap
+from sdk_part.volume_annotation.volume_annotation import VolumeAnnotation
 
 stl_extension = '.stl'
 nrrd_extension = '.nrrd'
 
 
-def convert_all(dir_path):
-    datasets_paths = [os.path.join(dir_path, ds) for ds in os.listdir(dir_path) if os.path.isdir(os.path.join(dir_path, ds))]
+def get_nrrd_header_and_output_file_path(project_meta, dataset_path, nrrd_path, nrrd_file_name):
+    ann_path = os.path.join(dataset_path, "ann", f"{nrrd_file_name}.json")
+    ann_json = load_json_file(ann_path)
+    # key_id_map_path = os.path.join(dir_path, "key_id_map.json")
+    # key_id_map = KeyIdMap.load_json(key_id_map_path)
+    volume_annotation = VolumeAnnotation.from_json(ann_json, project_meta)
+    stl_name = f"{volume_annotation.key().hex}.stl"
+    stl_file_dir = os.path.join(dataset_path, "interpolation", nrrd_file_name)
+    mkdir(stl_file_dir)
+    stl_path = os.path.join(stl_file_dir, stl_name)
+    output_file_path = stl_path.replace(stl_extension, nrrd_extension)
+    nrrd_header = nrrd.read_header(nrrd_path)
+    return nrrd_header, output_file_path
+
+
+def convert_all(dir_path, project_meta):
+    datasets_paths = [os.path.join(dir_path, ds) for ds in os.listdir(dir_path) if
+                      os.path.isdir(os.path.join(dir_path, ds))]
     for dataset_path in datasets_paths:
         volumes_dir = os.path.join(dataset_path, "volume")
         interpolation_dir = os.path.join(dataset_path, "interpolation")
 
         nrrd_paths = [os.path.join(volumes_dir, nrrd_file) for nrrd_file in os.listdir(volumes_dir)
                       if os.path.isfile(os.path.join(volumes_dir, nrrd_file))]
-        for nnrd_path in nrrd_paths:
-            nnrd_file_name = get_file_name_with_ext(nnrd_path)
 
-            stl_dir = os.path.join(interpolation_dir, nnrd_file_name)
+        for nrrd_path in nrrd_paths:
+            nrrd_file_name = get_file_name_with_ext(nrrd_path)
+            stl_dir = os.path.join(interpolation_dir, nrrd_file_name)
             if os.path.exists(stl_dir) and os.path.isdir(stl_dir):
                 stl_paths = [os.path.join(stl_dir, stl_file) for stl_file in os.listdir(stl_dir)
                              if os.path.isfile(os.path.join(stl_dir, stl_file))]
                 for stl_path in stl_paths:
                     output_file_path = stl_path.replace(stl_extension, nrrd_extension)
-                    convert_stl_to_nrrd(nnrd_path, stl_path, output_file_path)
+                    convert_stl_to_nrrd(nrrd_path, stl_path, output_file_path)
+            else:
+                nrrd_header, output_file_path = get_nrrd_header_and_output_file_path(project_meta, dataset_path, nrrd_path, nrrd_file_name)
+                generate_empty_nrrd_mask(nrrd_header, output_file_path)
 
 
 def matrix_from_nrrd_header(header):
@@ -57,6 +78,22 @@ def vec3_mat4(vec, mat):
 
 def clamp_val(val, min_val, max_val):
     return max(min(val, min_val), max_val)
+
+
+def generate_empty_nrrd_mask(nrrd_header, output_file_path):
+    mask = np.zeros(nrrd_header['sizes']).astype(np.short)
+
+    nrrd.write(
+        output_file_path,
+        mask,
+        header={
+            "encoding": 'gzip',
+            "space": nrrd_header['space'],
+            "space directions": nrrd_header['space directions'],
+            "space origin": nrrd_header['space origin'],
+        },
+        compression_level=9
+    )
 
 
 def convert_stl_to_nrrd(nrrd_path, stl_path, output_file_path):
@@ -88,9 +125,12 @@ def convert_stl_to_nrrd(nrrd_path, stl_path, output_file_path):
         voxel = mesh.voxelized(pitch=1.0)
     except Exception as e:
         sly.logger.error(e)
-        sly.logger.warning("Couldn't voxelize file {!r}".format(get_file_name_with_ext(stl_path)), extra={'file_path': stl_path})
+        sly.logger.warning(
+            "Couldn't voxelize file {!r}, empty mask will be generated".format(get_file_name_with_ext(stl_path)),
+            extra={'file_path': stl_path})
+        generate_empty_nrrd_mask(nrrd_header, output_file_path)
         return
-        
+
     voxel = voxel.fill()
 
     mask = voxel.matrix.astype(np.short)

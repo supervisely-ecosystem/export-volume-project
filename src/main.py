@@ -18,6 +18,8 @@ def download(api: sly.Api, task_id, context, state, app_logger):
         dataset = api.dataset.get_info_by_id(g.DATASET_ID)
         project = api.project.get_info_by_id(dataset.project_id)
 
+    project_meta = sly.ProjectMeta.from_json(api.project.get_meta(project.id))
+
     download_dir = os.path.join(g.my_app.data_dir, f'{project.id}_{project.name}')
     sly.fs.remove_dir(download_dir)
 
@@ -30,7 +32,7 @@ def download(api: sly.Api, task_id, context, state, app_logger):
                             batch_size=g.BATCH_SIZE)
 
     if g.convert_surface_to_mask:
-        stl_to_nrrd.convert_all(download_dir)
+        stl_to_nrrd.convert_all(download_dir, project_meta)
 
     full_archive_name = str(project.id) + '_' + project.name + '.tar'
     result_archive = os.path.join(g.my_app.data_dir, full_archive_name)

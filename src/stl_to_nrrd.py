@@ -8,7 +8,7 @@ from supervisely_lib.io.fs import get_file_name_with_ext, mkdir
 from supervisely_lib.io.json import load_json_file
 # from supervisely_lib.video_annotation.key_id_map import KeyIdMap
 from sdk_part.volume_annotation.volume_annotation import VolumeAnnotation
-from supervisely_lib.geometry.image_rotator import ImageRotator
+
 
 stl_extension = '.stl'
 nrrd_extension = '.nrrd'
@@ -88,7 +88,6 @@ def clamp_val(val, min_val, max_val):
 
 def generate_empty_nrrd_mask(nrrd_header, output_file_path):
     mask = np.zeros(nrrd_header['sizes']).astype(np.short)
-
     nrrd.write(
         output_file_path,
         mask,
@@ -186,18 +185,56 @@ def convert_to_bitmap(figure):
     return figure.clone(video_object=new_video_object, geometry=new_geometry)
 
 
+def draw_figure_on_slice(mask, plane, vol_slice_id, slice_bitmap, bitmap_origin):
+    if plane == 'sagittal':
+        cur_bitmap = mask[
+                     vol_slice_id,
+                     bitmap_origin.col:bitmap_origin.col + slice_bitmap.shape[0],
+                     bitmap_origin.row:bitmap_origin.row + slice_bitmap.shape[1],
+                     ]
+        cur_bitmap = np.where(slice_bitmap != 0, slice_bitmap, cur_bitmap)
+        mask[
+        vol_slice_id,
+        bitmap_origin.col:bitmap_origin.col + slice_bitmap.shape[0],
+        bitmap_origin.row:bitmap_origin.row + slice_bitmap.shape[1],
+        ] = cur_bitmap
+
+    elif plane == 'coronal':
+        cur_bitmap = mask[
+                     bitmap_origin.col:bitmap_origin.col + slice_bitmap.shape[0],
+                     vol_slice_id,
+                     bitmap_origin.row:bitmap_origin.row + slice_bitmap.shape[1],
+                     ]
+        cur_bitmap = np.where(slice_bitmap != 0, slice_bitmap, cur_bitmap)
+        mask[
+        bitmap_origin.col:bitmap_origin.col + slice_bitmap.shape[0],
+        vol_slice_id,
+        bitmap_origin.row:bitmap_origin.row + slice_bitmap.shape[1],
+        ] = cur_bitmap
+
+    elif plane == 'axial':
+        cur_bitmap = mask[
+                     bitmap_origin.col:bitmap_origin.col + slice_bitmap.shape[0],
+                     bitmap_origin.row:bitmap_origin.row + slice_bitmap.shape[1],
+                     vol_slice_id,
+                     ]
+        cur_bitmap = np.where(slice_bitmap != 0, slice_bitmap, cur_bitmap)
+        mask[
+        bitmap_origin.col:bitmap_origin.col + slice_bitmap.shape[0],
+        bitmap_origin.row:bitmap_origin.row + slice_bitmap.shape[1],
+        vol_slice_id,
+        ] = cur_bitmap
+
+    return mask
+
+
 def draw_segmentation_2d(project_meta, mask, ann_dir, nrrd_path, output_file_path):
     nrrd_header = nrrd.read_header(nrrd_path)
-
     nrrd_mask_file_name = get_file_name_with_ext(nrrd_path)
     ann_path = os.path.join(ann_dir, f"{nrrd_mask_file_name}.json")
     ann_json = load_json_file(ann_path)
     volume_annotation = VolumeAnnotation.from_json(ann_json, project_meta)
-
     for plane in ['sagittal', 'coronal', 'axial']:
-        if plane != 'axial':
-            continue
-
         for vol_slice in getattr(volume_annotation, plane):
             vol_slice_id = vol_slice.index
             for figure in vol_slice.figures:
@@ -205,34 +242,26 @@ def draw_segmentation_2d(project_meta, mask, ann_dir, nrrd_path, output_file_pat
                     figure = convert_to_bitmap(figure)
                 try:
                     slice_geometry = figure.geometry
-
-                    if plane == "axial":
-                        # height, width = volume_annotation.img_size
-                        # rotator = ImageRotator((height, width), 90)
-                        # slice_geometry = slice_geometry.rotate(rotator)
-                        pass
-                    #@TODO: fix rotation on axial plane
-
                     slice_bitmap = slice_geometry.data.astype(mask.dtype)
                     bitmap_origin = slice_geometry.origin
 
-                    mask[
-                        bitmap_origin.col:bitmap_origin.col + slice_bitmap.shape[0],
-                        bitmap_origin.row:bitmap_origin.row + slice_bitmap.shape[1],
-                        vol_slice_id,
-                    ] = slice_bitmap
-                    print("SUCCESS")
-                except Exception as e:
-                    print(f"Skipped axial slice: {vol_slice_id} in {nrrd_mask_file_name} due to error: '{e}'")
+                    slice_bitmap = np.fliplr(slice_bitmap)
+                    slice_bitmap = np.rot90(slice_bitmap, 1)
 
-    nrrd.write(
-        output_file_path,
-        mask,
-        header={
-            "encoding": 'gzip',
-            "space": nrrd_header['space'],
-            "space directions": nrrd_header['space directions'],
-            "space origin": nrrd_header['space origin'],
-        },
-        compression_level=9
-    )
+                    mask = draw_figure_on_slice(mask, plane, vol_slice_id, slice_bitmap, bitmap_origin)
+                except Exception as e:
+                    sly.logger.warn(
+                        f"Skipped {plane} slice: {vol_slice_id} in {nrrd_mask_file_name} due to error: '{e}'")
+                    continue
+
+        nrrd.write(
+            output_file_path,
+            mask,
+            header={
+                "encoding": 'gzip',
+                "space": nrrd_header['space'],
+                "space directions": nrrd_header['space directions'],
+                "space origin": nrrd_header['space origin'],
+            },
+            compression_level=9
+        )

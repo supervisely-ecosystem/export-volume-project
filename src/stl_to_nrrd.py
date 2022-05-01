@@ -9,27 +9,29 @@ from supervisely_lib.io.json import load_json_file
 # from supervisely_lib.video_annotation.key_id_map import KeyIdMap
 from sdk_part.volume_annotation.volume_annotation import VolumeAnnotation
 
-
 stl_extension = '.stl'
 nrrd_extension = '.nrrd'
 
 
-def get_nrrd_header_and_output_file_path(project_meta, dataset_path, nrrd_path, nrrd_file_name):
-    ann_path = os.path.join(dataset_path, "ann", f"{nrrd_file_name}.json")
-    ann_json = load_json_file(ann_path)
-    # key_id_map_path = os.path.join(dir_path, "key_id_map.json")
-    # key_id_map = KeyIdMap.load_json(key_id_map_path)
-    volume_annotation = VolumeAnnotation.from_json(ann_json, project_meta)
-    stl_name = f"{volume_annotation.key().hex}.stl"
+def get_nrrd_header_and_output_files_paths(project_meta, dataset_path, nrrd_path, nrrd_file_name):
     stl_file_dir = os.path.join(dataset_path, "interpolation", nrrd_file_name)
     mkdir(stl_file_dir)
-    stl_path = os.path.join(stl_file_dir, stl_name)
-    output_file_path = stl_path.replace(stl_extension, nrrd_extension)
+
+    ann_path = os.path.join(dataset_path, "ann", f"{nrrd_file_name}.json")
+    ann_json = load_json_file(ann_path)
+
+    output_files_paths = []
+    volume_annotation = VolumeAnnotation.from_json(ann_json, project_meta)
+    for volume_object in volume_annotation.objects:
+        output_file_name = f"{volume_object._key.hex}.nrrd"
+        output_file_path = os.path.join(stl_file_dir, output_file_name)
+        output_files_paths.append(output_file_path)
+
     nrrd_header = nrrd.read_header(nrrd_path)
-    return nrrd_header, output_file_path
+    return nrrd_header, output_files_paths
 
 
-def convert_all(dir_path, project_meta):
+def convert_all(dir_path, project_meta, key_id_map):
     datasets_paths = [os.path.join(dir_path, ds) for ds in os.listdir(dir_path) if
                       os.path.isdir(os.path.join(dir_path, ds))]
     for dataset_path in datasets_paths:
@@ -49,13 +51,17 @@ def convert_all(dir_path, project_meta):
                 for stl_path in stl_paths:
                     output_file_path = stl_path.replace(stl_extension, nrrd_extension)
                     mask = convert_stl_to_nrrd(nrrd_path, stl_path, output_file_path)
-                    draw_segmentation_2d(project_meta, mask, ann_dir, nrrd_path, output_file_path)
+                    # if g.DRAW_FLAT_FIGURES:
+                    draw_object_mask(project_meta, key_id_map, ann_dir, nrrd_path, output_file_path, orig_mask=mask)
 
             else:
-                nrrd_header, output_file_path = get_nrrd_header_and_output_file_path(project_meta, dataset_path,
-                                                                                     nrrd_path, nrrd_file_name)
-                mask = generate_empty_nrrd_mask(nrrd_header, output_file_path)
-                draw_segmentation_2d(project_meta, mask, ann_dir, nrrd_path, output_file_path)
+                nrrd_header, output_files_paths = get_nrrd_header_and_output_files_paths(project_meta,
+                                                                                         dataset_path,
+                                                                                         nrrd_path, nrrd_file_name)
+                for output_file_path in output_files_paths:
+                    generate_empty_nrrd_mask(nrrd_header, output_file_path)
+                # if g.DRAW_FLAT_FIGURES:
+                draw_object_mask(project_meta, key_id_map, ann_dir, nrrd_path, interpolation_dir, orig_mask=None)
 
 
 def matrix_from_nrrd_header(header):
@@ -99,7 +105,6 @@ def generate_empty_nrrd_mask(nrrd_header, output_file_path):
         },
         compression_level=9
     )
-    return mask
 
 
 def convert_stl_to_nrrd(nrrd_path, stl_path, output_file_path):
@@ -162,6 +167,7 @@ def convert_stl_to_nrrd(nrrd_path, stl_path, output_file_path):
         ]
 
     mask = padded_mask
+
     nrrd.write(
         output_file_path,
         mask,
@@ -228,31 +234,43 @@ def draw_figure_on_slice(mask, plane, vol_slice_id, slice_bitmap, bitmap_origin)
     return mask
 
 
-def draw_segmentation_2d(project_meta, mask, ann_dir, nrrd_path, output_file_path):
+def draw_object_mask(project_meta, key_id_map, ann_dir, nrrd_path, orig_output_file_path, orig_mask=None):
     nrrd_header = nrrd.read_header(nrrd_path)
     nrrd_mask_file_name = get_file_name_with_ext(nrrd_path)
     ann_path = os.path.join(ann_dir, f"{nrrd_mask_file_name}.json")
     ann_json = load_json_file(ann_path)
     volume_annotation = VolumeAnnotation.from_json(ann_json, project_meta)
-    for plane in ['sagittal', 'coronal', 'axial']:
-        for vol_slice in getattr(volume_annotation, plane):
-            vol_slice_id = vol_slice.index
-            for figure in vol_slice.figures:
-                if figure.video_object.obj_class.geometry_type != sly.Bitmap:
-                    figure = convert_to_bitmap(figure)
-                try:
-                    slice_geometry = figure.geometry
-                    slice_bitmap = slice_geometry.data.astype(mask.dtype)
-                    bitmap_origin = slice_geometry.origin
 
-                    slice_bitmap = np.fliplr(slice_bitmap)
-                    slice_bitmap = np.rot90(slice_bitmap, 1)
+    for volume_object in volume_annotation.objects:
+        mask = orig_mask
+        output_file_path = orig_output_file_path
+        if mask is None:
+            mask = np.zeros(nrrd_header['sizes']).astype(np.short)
+            output_file_name = f"{volume_object._key.hex}.nrrd"
+            output_file_path = os.path.join(output_file_path, nrrd_mask_file_name, output_file_name)
 
-                    mask = draw_figure_on_slice(mask, plane, vol_slice_id, slice_bitmap, bitmap_origin)
-                except Exception as e:
-                    sly.logger.warn(
-                        f"Skipped {plane} slice: {vol_slice_id} in {nrrd_mask_file_name} due to error: '{e}'")
-                    continue
+        volume_object_key = key_id_map.get_object_id(volume_object._key)
+        for plane in ['sagittal', 'coronal', 'axial']:
+            for vol_slice in getattr(volume_annotation, plane):
+                vol_slice_id = vol_slice.index
+                for figure in vol_slice.figures:
+                    figure_vobj_key = key_id_map.get_object_id(figure.video_object._key)
+                    if figure_vobj_key != volume_object_key: continue
+                    if figure.video_object.obj_class.geometry_type != sly.Bitmap:
+                        figure = convert_to_bitmap(figure)
+                    try:
+                        slice_geometry = figure.geometry
+                        slice_bitmap = slice_geometry.data.astype(mask.dtype)
+                        bitmap_origin = slice_geometry.origin
+
+                        slice_bitmap = np.fliplr(slice_bitmap)
+                        slice_bitmap = np.rot90(slice_bitmap, 1)
+
+                        mask = draw_figure_on_slice(mask, plane, vol_slice_id, slice_bitmap, bitmap_origin)
+                    except Exception as e:
+                        sly.logger.warn(
+                            f"Skipped {plane} slice: {vol_slice_id} in {nrrd_mask_file_name} due to error: '{e}'")
+                        continue
 
         nrrd.write(
             output_file_path,

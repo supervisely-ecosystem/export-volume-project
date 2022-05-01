@@ -1,7 +1,8 @@
 import os
 import globals as g
 import supervisely_lib as sly
-
+from supervisely_lib.video_annotation.key_id_map import KeyIdMap
+from supervisely_lib.io.json import load_json_file
 from sdk_part.project.volume_project import download_volume_project
 from sdk_part.api.volume.volume_api import VolumeApi
 import stl_to_nrrd
@@ -18,7 +19,6 @@ def download(api: sly.Api, task_id, context, state, app_logger):
         dataset = api.dataset.get_info_by_id(g.DATASET_ID)
         project = api.project.get_info_by_id(dataset.project_id)
 
-    project_meta = sly.ProjectMeta.from_json(api.project.get_meta(project.id))
 
     download_dir = os.path.join(g.my_app.data_dir, f'{project.id}_{project.name}')
     sly.fs.remove_dir(download_dir)
@@ -31,8 +31,12 @@ def download(api: sly.Api, task_id, context, state, app_logger):
                             log_progress=True,
                             batch_size=g.BATCH_SIZE)
 
+    project_meta_local = load_json_file(os.path.join(download_dir, "meta.json"))
+    project_meta = sly.ProjectMeta.from_json(project_meta_local)
+    key_id_map = KeyIdMap.load_json(os.path.join(download_dir, "key_id_map.json"))
+
     if g.convert_surface_to_mask:
-        mask = stl_to_nrrd.convert_all(download_dir, project_meta)
+        stl_to_nrrd.convert_all(download_dir, project_meta, key_id_map)
 
         # stl_to_nrrd.draw_segmentation_2d(download_dir, project_meta, mask)
 

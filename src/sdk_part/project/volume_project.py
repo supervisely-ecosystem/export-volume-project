@@ -1,32 +1,32 @@
 # coding: utf-8
 
-from collections import namedtuple
 import os
+from collections import namedtuple
 
-from supervisely_lib.io.fs import touch, mkdir
-from supervisely_lib.io.json import load_json_file
-from supervisely_lib.project.project_meta import ProjectMeta
-from supervisely_lib.task.progress import Progress
 from supervisely_lib._utils import batched
+from supervisely_lib.api.module_api import ApiField
+from supervisely_lib.collection.key_indexed_collection import \
+    KeyIndexedCollection
+from supervisely_lib.io.fs import mkdir, touch
+from supervisely_lib.io.json import load_json_file
+from supervisely_lib.project.project import OpenMode
+from supervisely_lib.project.project_meta import ProjectMeta
+from supervisely_lib.project.project_type import ProjectType
+from supervisely_lib.project.video_project import VideoDataset, VideoProject
+from supervisely_lib.task.progress import Progress
 from supervisely_lib.video_annotation.key_id_map import KeyIdMap
 
-from supervisely_lib.api.module_api import ApiField
-from supervisely_lib.collection.key_indexed_collection import KeyIndexedCollection
-from supervisely_lib.project.project import OpenMode
-from supervisely_lib.project.video_project import VideoProject, VideoDataset
-from supervisely_lib.project.project_type import ProjectType
-
 from sdk_part.volume import volume as sly_volume
-from sdk_part.volume_annotation.volume_annotation import VolumeAnnotation
-from sdk_part.volume_annotation.constants import VOLUME_NAME
 from sdk_part.volume.volume import validate_format
+from sdk_part.volume_annotation.constants import VOLUME_NAME
+from sdk_part.volume_annotation.volume_annotation import VolumeAnnotation
 
-VolumeItemPaths = namedtuple('VolumeItemPaths', ['volume_path', 'ann_path'])
+VolumeItemPaths = namedtuple("VolumeItemPaths", ["volume_path", "ann_path"])
 
 
 class VolumeDataset(VideoDataset):
-    item_dir_name = 'volume'
-    related_files_dir_name = 'interpolation'
+    item_dir_name = "volume"
+    related_files_dir_name = "interpolation"
     annotation_class = VolumeAnnotation
 
     @staticmethod
@@ -40,7 +40,10 @@ class VolumeDataset(VideoDataset):
     def _validate_added_item_or_die(item_path):
         try:
             sly_volume.validate_format(item_path)
-        except (sly_volume.UnsupportedVolumeFormat, sly_volume.VolumeReadException) as e:
+        except (
+            sly_volume.UnsupportedVolumeFormat,
+            sly_volume.VolumeReadException,
+        ) as e:
             os.remove(item_path)
             raise e
 
@@ -50,7 +53,7 @@ class VolumeDataset(VideoDataset):
 
     def get_interpolation_path(self, item_name, figure):
         rel_dir = self.get_related_files_path(item_name)
-        return os.path.join(rel_dir, figure.key().hex + '.stl')
+        return os.path.join(rel_dir, figure.key().hex + ".stl")
 
     # def set_interpolation(self, volume_name, objects, interpolations_bytes):
     #     for obj, interpolation_bytes in zip(objects, interpolations_bytes):
@@ -64,7 +67,10 @@ class VolumeDataset(VideoDataset):
     def get_item_paths(self, item_name) -> VolumeItemPaths:
         volume_path = self.get_img_path(item_name)
         validate_format(volume_path)
-        return VolumeItemPaths(volume_path=self.get_img_path(item_name), ann_path=self.get_ann_path(item_name))
+        return VolumeItemPaths(
+            volume_path=self.get_img_path(item_name),
+            ann_path=self.get_ann_path(item_name),
+        )
 
 
 class VolumeProject(VideoProject):
@@ -74,7 +80,15 @@ class VolumeProject(VideoProject):
         item_type = VolumeDataset
 
 
-def download_volume_project(api, project_id, dest_dir, dataset_ids=None, download_volumes=True, batch_size=10, log_progress=False):
+def download_volume_project(
+    api,
+    project_id,
+    dest_dir,
+    dataset_ids=None,
+    download_volumes=True,
+    batch_size=10,
+    log_progress=False,
+):
     key_id_map = KeyIdMap()
 
     project_fs = VolumeProject(dest_dir, OpenMode.CREATE)
@@ -94,27 +108,37 @@ def download_volume_project(api, project_id, dest_dir, dataset_ids=None, downloa
 
         ds_progress = None
         if log_progress:
-            ds_progress = Progress('Downloading dataset: {!r}'.format(dataset.name), total_cnt=len(volumes))
+            ds_progress = Progress(
+                "Downloading dataset: {!r}".format(dataset.name), total_cnt=len(volumes)
+            )
         for batch in batched(volumes, batch_size=batch_size):
             volume_ids = [volume_info.id for volume_info in batch]
             volume_names = [volume_info.name for volume_info in batch]
             ann_jsons = api.volume.annotation.download_bulk(dataset.id, volume_ids)
 
-            for volume_id, volume_name, ann_json in zip(volume_ids, volume_names, ann_jsons):
+            for volume_id, volume_name, ann_json in zip(
+                volume_ids, volume_names, ann_jsons
+            ):
                 if volume_name != ann_json[VOLUME_NAME]:
-                    raise RuntimeError("Error in api.volume.annotation.download_batch: broken order")
+                    raise RuntimeError(
+                        "Error in api.volume.annotation.download_batch: broken order"
+                    )
 
-                volume_annotation = VolumeAnnotation.from_json(ann_json, project_fs.meta, key_id_map)
+                volume_annotation = VolumeAnnotation.from_json(
+                    ann_json, project_fs.meta, key_id_map
+                )
                 volume_file_path = dataset_fs.generate_item_path(volume_name)
                 if download_volumes is True:
                     api.volume.download_path(volume_id, volume_file_path)
                 else:
                     touch(volume_file_path)
 
-                dataset_fs.add_item_file(volume_name,
-                                         volume_file_path,
-                                         ann=volume_annotation,
-                                         _validate_item=False)
+                dataset_fs.add_item_file(
+                    volume_name,
+                    volume_file_path,
+                    ann=volume_annotation,
+                    _validate_item=False,
+                )
 
                 mesh_ids = []
                 mesh_paths = []
@@ -129,7 +153,7 @@ def download_volume_project(api, project_id, dest_dir, dataset_ids=None, downloa
                 # vol_interp = api.volume.object.get_interpolation(volume_id,
                 #                                                  volume_annotation.objects,
                 #                                                  key_id_map)
-                #dataset_fs.set_interpolation(volume_name, volume_annotation.objects, vol_interp)
+                # dataset_fs.set_interpolation(volume_name, volume_annotation.objects, vol_interp)
 
             if log_progress:
                 ds_progress.iters_done_report(len(batch))
@@ -137,20 +161,24 @@ def download_volume_project(api, project_id, dest_dir, dataset_ids=None, downloa
     project_fs.set_key_id_map(key_id_map)
 
 
-def upload_volume_project(directory, api, workspace_id, project_name=None, progress_cb=None):
+def upload_volume_project(
+    directory, api, workspace_id, project_name=None, progress_cb=None
+):
     project_fs = VolumeProject(directory, mode=OpenMode.READ)
     if project_name is None:
-       project_name = project_fs.name
+        project_name = project_fs.name
 
     if api.project.exists(workspace_id, project_name):
-       project_name = api.project.get_free_name(workspace_id, project_name)
+        project_name = api.project.get_free_name(workspace_id, project_name)
 
     project = api.project.create(workspace_id, project_name, ProjectType.VOLUMES)
     api.project.update_meta(project.id, project_fs.meta.to_json())
 
     uploaded_objects = KeyIdMap()
     for dataset_fs in project_fs:
-        dataset = api.dataset.create(project.id, dataset_fs.name, change_name_if_conflict=True)
+        dataset = api.dataset.create(
+            project.id, dataset_fs.name, change_name_if_conflict=True
+        )
 
         anns, item_names, volume_paths, volume_metas = [], [], [], []
         for item_name in dataset_fs:
@@ -161,7 +189,9 @@ def upload_volume_project(directory, api, workspace_id, project_name=None, progr
             volume_paths.append(volume_path)
             volume_metas.append(ann.volume_meta)
 
-        volumes = api.volume.upload_paths(dataset.id, item_names, volume_paths, volume_metas, progress_cb=progress_cb)
+        volumes = api.volume.upload_paths(
+            dataset.id, item_names, volume_paths, volume_metas, progress_cb=progress_cb
+        )
 
         for i, ann in enumerate(anns):
             api.volume.annotation.append(volumes[i].id, ann, uploaded_objects)

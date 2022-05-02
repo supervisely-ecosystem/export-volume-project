@@ -1,6 +1,8 @@
 from supervisely_lib.video_annotation.frame import Frame
 from supervisely_lib.video_annotation.frame_collection import FrameCollection
-from sdk_part.volume_annotation.constants import PLANE_NAMES, NAME, NORMAL, SLICES
+
+from sdk_part.volume_annotation.constants import (NAME, NORMAL, PLANE_NAMES,
+                                                  SLICES)
 
 
 class Plane(FrameCollection):
@@ -13,7 +15,7 @@ class Plane(FrameCollection):
         self._normal = normal
 
     def __str__(self):
-        return f'Plane name: {self.name}, Normal: {self.normal}, Slices: {super(Plane, self).__str__()}'
+        return f"Plane name: {self.name}, Normal: {self.normal}, Slices: {super(Plane, self).__str__()}"
 
     @property
     def name(self):
@@ -24,14 +26,19 @@ class Plane(FrameCollection):
         return self._normal
 
     def to_json(self, key_id_map=None):
-        return {NAME: self.name,
-                NORMAL: self.normal,
-                SLICES: [slice.to_json(key_id_map) for slice in self]}
+        return {
+            NAME: self.name,
+            NORMAL: self.normal,
+            SLICES: [slice.to_json(key_id_map) for slice in self],
+        }
 
     @classmethod
     def from_json(cls, data, objects, key_id_map=None):
         slices_json = data[SLICES]
-        slices = [cls.item_type.from_json(slice_json, objects, key_id_map=key_id_map) for slice_json in slices_json]
+        slices = [
+            cls.item_type.from_json(slice_json, objects, key_id_map=key_id_map)
+            for slice_json in slices_json
+        ]
 
         name = data[NAME]
         normal = data[NORMAL]
@@ -40,4 +47,4 @@ class Plane(FrameCollection):
     @staticmethod
     def validate_plane_name(plane_name):
         if plane_name not in PLANE_NAMES and plane_name:
-            raise NameError(f'plane name {plane_name} not allowed. Only {PLANE_NAMES}')
+            raise NameError(f"plane name {plane_name} not allowed. Only {PLANE_NAMES}")

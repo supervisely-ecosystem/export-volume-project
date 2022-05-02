@@ -1,16 +1,24 @@
+import globals as g
 import os
 import math
 import nrrd
 import trimesh
 import numpy as np
 import supervisely_lib as sly
-from supervisely_lib.io.fs import get_file_name_with_ext, mkdir
+from supervisely_lib.io.fs import get_file_name_with_ext, mkdir, get_file_name
 from supervisely_lib.io.json import load_json_file
 # from supervisely_lib.video_annotation.key_id_map import KeyIdMap
 from sdk_part.volume_annotation.volume_annotation import VolumeAnnotation
 
 stl_extension = '.stl'
 nrrd_extension = '.nrrd'
+
+
+def fill_class2idx_map(project_meta):
+    return {
+        obj_class.name: idx + 1
+        for idx, obj_class in enumerate(project_meta.obj_classes)
+    }
 
 
 def get_nrrd_header_and_output_files_paths(project_meta, dataset_path, nrrd_path, nrrd_file_name):
@@ -48,11 +56,16 @@ def convert_all(dir_path, project_meta, key_id_map):
             if os.path.exists(stl_dir) and os.path.isdir(stl_dir):
                 stl_paths = [os.path.join(stl_dir, stl_file) for stl_file in os.listdir(stl_dir)
                              if os.path.isfile(os.path.join(stl_dir, stl_file))]
+                stl_masks = []
                 for stl_path in stl_paths:
+                    stl_name = get_file_name(stl_path)
                     output_file_path = stl_path.replace(stl_extension, nrrd_extension)
                     mask = convert_stl_to_nrrd(nrrd_path, stl_path, output_file_path)
-                    # if g.DRAW_FLAT_FIGURES:
-                    draw_object_mask(project_meta, key_id_map, ann_dir, nrrd_path, output_file_path, orig_mask=mask)
+                    stl_masks.append(mask)
+                    if g.draw_flat_figures:
+                        draw_object_mask(project_meta, key_id_map, ann_dir, nrrd_path, output_file_path, orig_mask=mask)
+                if g.draw_objects_as_single_mask:
+                    merge_single_mask(project_meta, ann_dir, nrrd_path, interpolation_dir, stl_masks=stl_masks)
 
             else:
                 nrrd_header, output_files_paths = get_nrrd_header_and_output_files_paths(project_meta,
@@ -60,8 +73,10 @@ def convert_all(dir_path, project_meta, key_id_map):
                                                                                          nrrd_path, nrrd_file_name)
                 for output_file_path in output_files_paths:
                     generate_empty_nrrd_mask(nrrd_header, output_file_path)
-                # if g.DRAW_FLAT_FIGURES:
-                draw_object_mask(project_meta, key_id_map, ann_dir, nrrd_path, interpolation_dir, orig_mask=None)
+                if g.draw_flat_figures:
+                    draw_object_mask(project_meta, key_id_map, ann_dir, nrrd_path, interpolation_dir, orig_mask=None)
+                if g.draw_objects_as_single_mask:
+                    draw_single_mask(project_meta, key_id_map, ann_dir, nrrd_path, interpolation_dir, mask=None)
 
 
 def matrix_from_nrrd_header(header):
@@ -244,10 +259,11 @@ def draw_object_mask(project_meta, key_id_map, ann_dir, nrrd_path, orig_output_f
     for volume_object in volume_annotation.objects:
         mask = orig_mask
         output_file_path = orig_output_file_path
+
         if mask is None:
             mask = np.zeros(nrrd_header['sizes']).astype(np.short)
             output_file_name = f"{volume_object._key.hex}.nrrd"
-            output_file_path = os.path.join(output_file_path, nrrd_mask_file_name, output_file_name)
+            output_file_path = os.path.join(orig_output_file_path, nrrd_mask_file_name, output_file_name)
 
         volume_object_key = key_id_map.get_object_id(volume_object._key)
         for plane in ['sagittal', 'coronal', 'axial']:
@@ -283,3 +299,83 @@ def draw_object_mask(project_meta, key_id_map, ann_dir, nrrd_path, orig_output_f
             },
             compression_level=9
         )
+
+
+def draw_single_mask(project_meta, key_id_map, ann_dir, nrrd_path, orig_output_file_path, mask=None):
+    nrrd_header = nrrd.read_header(nrrd_path)
+    nrrd_mask_file_name = get_file_name_with_ext(nrrd_path)
+    ann_path = os.path.join(ann_dir, f"{nrrd_mask_file_name}.json")
+    ann_json = load_json_file(ann_path)
+    volume_annotation = VolumeAnnotation.from_json(ann_json, project_meta)
+
+    if mask is None:
+        mask = np.zeros(nrrd_header['sizes']).astype(np.short)
+        output_file_name = f"{volume_annotation._key.hex}_single_mask.nrrd"
+        output_file_path = os.path.join(orig_output_file_path, nrrd_mask_file_name, output_file_name)
+    else:
+        mask = np.zeros(nrrd_header['sizes']).astype(np.short)
+        output_file_name = f"{volume_annotation._key.hex}_single_mask.nrrd"
+        output_file_path = os.path.join(os.path.dirname(orig_output_file_path), output_file_name)
+
+    for volume_object in volume_annotation.objects:
+        mask = mask
+        volume_object_key = key_id_map.get_object_id(volume_object._key)
+        for plane in ['sagittal', 'coronal', 'axial']:
+            for vol_slice in getattr(volume_annotation, plane):
+                vol_slice_id = vol_slice.index
+                for figure in vol_slice.figures:
+                    figure_vobj_key = key_id_map.get_object_id(figure.video_object._key)
+                    if figure_vobj_key != volume_object_key:
+                        continue
+                    if figure.video_object.obj_class.geometry_type != sly.Bitmap:
+                        figure = convert_to_bitmap(figure)
+                    try:
+                        slice_geometry = figure.geometry
+                        slice_bitmap = slice_geometry.data.astype(mask.dtype)
+                        bitmap_origin = slice_geometry.origin
+
+                        slice_bitmap = np.fliplr(slice_bitmap)
+                        slice_bitmap = np.rot90(slice_bitmap, 1)
+
+                        mask = draw_figure_on_slice(mask, plane, vol_slice_id, slice_bitmap, bitmap_origin)
+                    except Exception as e:
+                        sly.logger.warn(
+                            f"Skipped {plane} slice: {vol_slice_id} in {nrrd_mask_file_name} due to error: '{e}'")
+                        continue
+
+    nrrd.write(
+        output_file_path,
+        mask,
+        header={
+            "encoding": 'gzip',
+            "space": nrrd_header['space'],
+            "space directions": nrrd_header['space directions'],
+            "space origin": nrrd_header['space origin'],
+        },
+        compression_level=9
+    )
+
+
+def merge_single_mask(project_meta, ann_dir, nrrd_path, interpolation_dir, stl_masks):
+    nrrd_header = nrrd.read_header(nrrd_path)
+    nrrd_mask_file_name = get_file_name_with_ext(nrrd_path)
+    ann_path = os.path.join(ann_dir, f"{nrrd_mask_file_name}.json")
+    ann_json = load_json_file(ann_path)
+    volume_annotation = VolumeAnnotation.from_json(ann_json, project_meta)
+
+    output_file_name = f"{volume_annotation._key.hex}_single_mask.nrrd"
+    output_file_path = os.path.join(interpolation_dir, nrrd_mask_file_name, output_file_name)
+
+    mask = np.array([(ai*1) + (bi*2) + (ci*3) for ai, bi, ci in zip(stl_masks[0], stl_masks[1], stl_masks[2])])
+
+    nrrd.write(
+        output_file_path,
+        mask,
+        header={
+            "encoding": 'gzip',
+            "space": nrrd_header['space'],
+            "space directions": nrrd_header['space directions'],
+            "space origin": nrrd_header['space origin'],
+        },
+        compression_level=9
+    )

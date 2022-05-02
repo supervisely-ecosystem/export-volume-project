@@ -42,5 +42,10 @@ download_volumes = bool(strtobool(os.getenv('modal.state.downloadVolumes')))
 download_annotations = True #bool(strtobool(os.getenv('modal.state.downloadAnnotations')))
 convert_surface_to_mask = bool(strtobool(os.getenv('modal.state.convertSurfaceToMask')))
 
+draw_flat_figures = True
+draw_objects_as_single_mask = True
+
+class2idx = {}
+
 if download_volumes is False:
     convert_surface_to_mask = False

@@ -2,7 +2,7 @@ import os
 import globals as g
 import supervisely_lib as sly
 from supervisely_lib.video_annotation.key_id_map import KeyIdMap
-from supervisely_lib.io.json import load_json_file
+from supervisely_lib.io.json import load_json_file, dump_json_file
 from sdk_part.project.volume_project import download_volume_project
 from sdk_part.api.volume.volume_api import VolumeApi
 import stl_to_nrrd
@@ -33,7 +33,11 @@ def download(api: sly.Api, task_id, context, state, app_logger):
 
     project_meta_local = load_json_file(os.path.join(download_dir, "meta.json"))
     project_meta = sly.ProjectMeta.from_json(project_meta_local)
+
     key_id_map = KeyIdMap.load_json(os.path.join(download_dir, "key_id_map.json"))
+    g.class2idx = stl_to_nrrd.fill_class2idx_map(project_meta)
+    class2idx_path = os.path.join(download_dir, "class2idx.json")
+    dump_json_file(g.class2idx, class2idx_path)
 
     if g.convert_surface_to_mask:
         stl_to_nrrd.convert_all(download_dir, project_meta, key_id_map)

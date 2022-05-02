@@ -11,7 +11,9 @@
   "modal_template_state": {
     "downloadVolumes": true,
     "convertSurfaceToMask": true,
-    "downloadAnnotations": true
+    "downloadAnnotations": true,
+    "saveInstanceSegmentationMasks": true,
+    "saveSemanticSegmentationMasks": true
   },
   "task_location": "workspace_tasks",
   "isolate": true,

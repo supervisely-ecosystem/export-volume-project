@@ -4,17 +4,17 @@ from distutils.util import strtobool
 from pathlib import Path
 
 import supervisely_lib as sly
-from dotenv import load_dotenv
+# from dotenv import load_dotenv
 
 root_source_dir = str(Path(sys.argv[0]).parents[1])
 print(f"App source directory: {root_source_dir}")
 sys.path.append(root_source_dir)
 
 # only for convenient debug
-debug_env_path = os.path.join(root_source_dir, "debug.env")
-secret_debug_env_path = os.path.join(root_source_dir, "secret_debug.env")
-load_dotenv(debug_env_path)
-load_dotenv(secret_debug_env_path, override=True)
+# debug_env_path = os.path.join(root_source_dir, "debug.env")
+# secret_debug_env_path = os.path.join(root_source_dir, "secret_debug.env")
+# load_dotenv(debug_env_path)
+# load_dotenv(secret_debug_env_path, override=True)
 
 
 api: sly.Api = sly.Api.from_env()

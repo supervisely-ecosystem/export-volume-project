@@ -4,6 +4,7 @@ import numpy as np
 import supervisely_lib as sly
 
 import functions as f
+import globals as g
 import stl_to_nrrd
 
 stl_extension = ".stl"
@@ -31,9 +32,10 @@ def segment_interpolation(
         )
 
         output_save_path = os.path.join(stl_dir, f"{sp_figure._key.hex}.nrrd")
-        f.save_nrrd_mask(
-            nrrd_header, interpolation_mask.astype(np.short), output_save_path
-        )
+        if g.convert_surface_to_mask:
+            f.save_nrrd_mask(
+                nrrd_header, interpolation_mask.astype(np.short), output_save_path
+            )
         mask = np.where(interpolation_mask != 0, interpolation_mask, mask)
     return mask
 

@@ -61,6 +61,12 @@ def convert_all(dir_path, project_meta, key_id_map):
                     f.save_nrrd_mask(
                         nrrd_header, curr_obj_mask.astype(np.short), output_save_path
                     )
+                else:
+                    f.save_nrrd_mask(
+                        nrrd_header,
+                        np.zeros(nrrd_header["sizes"]).astype(np.short),
+                        output_save_path,
+                    )
                 if vol_seg_mask is not None:
                     curr_obj_mask = curr_obj_mask.astype(np.short) * v_object_id
                     vol_seg_mask = np.where(

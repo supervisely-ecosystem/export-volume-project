@@ -4,6 +4,7 @@ from distutils.util import strtobool
 from pathlib import Path
 
 import supervisely_lib as sly
+
 # from dotenv import load_dotenv
 
 root_source_dir = str(Path(sys.argv[0]).parents[1])
@@ -43,8 +44,12 @@ download_annotations = (
     True
 )  # bool(strtobool(os.getenv('modal.state.downloadAnnotations')))
 convert_surface_to_mask = bool(strtobool(os.getenv("modal.state.convertSurfaceToMask")))
-save_instance_segmentation = bool(strtobool(os.getenv("modal.state.saveInstanceSegmentationMasks")))
-save_semantic_segmentation = bool(strtobool(os.getenv("modal.state.saveSemanticSegmentationMasks")))
+save_instance_segmentation = bool(
+    strtobool(os.getenv("modal.state.saveInstanceSegmentationMasks"))
+)
+save_semantic_segmentation = bool(
+    strtobool(os.getenv("modal.state.saveSemanticSegmentationMasks"))
+)
 
 class2idx = {}
 

@@ -50,3 +50,5 @@ class2idx = {}
 
 if not download_volumes:
     convert_surface_to_mask = False
+    save_instance_segmentation = False
+    save_semantic_segmentation = False

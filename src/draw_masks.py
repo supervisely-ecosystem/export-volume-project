@@ -1,7 +1,7 @@
 import os
 
 import numpy as np
-import supervisely_lib as sly
+import supervisely as sly
 
 import functions as f
 import globals as g
@@ -23,7 +23,7 @@ def segment_interpolation(
 ):
     volume_object_key = key_id_map.get_object_id(volume_object._key)
     for sp_figure in volume_annotation.spatial_figures:
-        figure_vobj_key = key_id_map.get_object_id(sp_figure.video_object._key)
+        figure_vobj_key = key_id_map.get_object_id(sp_figure.volume_object._key)
         if figure_vobj_key != volume_object_key:
             continue
         stl_path = os.path.join(stl_dir, f"{sp_figure._key.hex}.stl")
@@ -70,14 +70,14 @@ def segment_object(
 def segment_2d(volume_annotation, volume_object, key_id_map, vol_seg_mask_shape):
     mask = np.zeros(vol_seg_mask_shape).astype(np.bool)
     volume_object_key = key_id_map.get_object_id(volume_object._key)
-    for plane in ["sagittal", "coronal", "axial"]:
+    for plane in ["plane_sagittal", "plane_coronal", "plane_axial"]:
         for vol_slice in getattr(volume_annotation, plane):
             vol_slice_id = vol_slice.index
             for figure in vol_slice.figures:
-                figure_vobj_key = key_id_map.get_object_id(figure.video_object._key)
+                figure_vobj_key = key_id_map.get_object_id(figure.volume_object._key)
                 if figure_vobj_key != volume_object_key:
                     continue
-                if figure.video_object.obj_class.geometry_type != sly.Bitmap:
+                if figure.volume_object.obj_class.geometry_type != sly.Bitmap:
                     figure = f.convert_to_bitmap(figure)
                 try:
                     slice_geometry = figure.geometry
@@ -103,7 +103,7 @@ def segment_2d(volume_annotation, volume_object, key_id_map, vol_seg_mask_shape)
 
 
 def draw_figure_on_slice(mask, plane, vol_slice_id, slice_bitmap, bitmap_origin):
-    if plane == "sagittal":
+    if plane == "plane_sagittal":
         cur_bitmap = mask[
             vol_slice_id,
             bitmap_origin.col : bitmap_origin.col + slice_bitmap.shape[0],
@@ -116,7 +116,7 @@ def draw_figure_on_slice(mask, plane, vol_slice_id, slice_bitmap, bitmap_origin)
             bitmap_origin.row : bitmap_origin.row + slice_bitmap.shape[1],
         ] = cur_bitmap
 
-    elif plane == "coronal":
+    elif plane == "plane_coronal":
         cur_bitmap = mask[
             bitmap_origin.col : bitmap_origin.col + slice_bitmap.shape[0],
             vol_slice_id,
@@ -129,7 +129,7 @@ def draw_figure_on_slice(mask, plane, vol_slice_id, slice_bitmap, bitmap_origin)
             bitmap_origin.row : bitmap_origin.row + slice_bitmap.shape[1],
         ] = cur_bitmap
 
-    elif plane == "axial":
+    elif plane == "plane_axial":
         cur_bitmap = mask[
             bitmap_origin.col : bitmap_origin.col + slice_bitmap.shape[0],
             bitmap_origin.row : bitmap_origin.row + slice_bitmap.shape[1],

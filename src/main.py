@@ -1,14 +1,15 @@
 import os
 
-import supervisely_lib as sly
-from supervisely_lib.io.json import dump_json_file, load_json_file
-from supervisely_lib.video_annotation.key_id_map import KeyIdMap
+import supervisely as sly
+from supervisely.api.volume.volume_api import VolumeApi
+from supervisely.io.json import dump_json_file, load_json_file
+from supervisely.project.volume_project import (download_volume_project,
+                                                upload_volume_project)
+from supervisely.video_annotation.key_id_map import KeyIdMap
 
 import functions as f
 import globals as g
 import stl_to_nrrd
-from sdk_part.api.volume.volume_api import VolumeApi
-from sdk_part.project.volume_project import download_volume_project
 
 
 @g.my_app.callback("download")
@@ -26,13 +27,12 @@ def download(api: sly.Api, task_id, context, state, app_logger):
     sly.fs.remove_dir(download_dir)
 
     download_volume_project(
-        api,
-        project.id,
-        download_dir,
+        api=api,
+        project_id=project.id,
+        dest_dir=download_dir,
         dataset_ids=[g.DATASET_ID] if g.DATASET_ID else None,
         download_volumes=g.download_volumes,
         log_progress=True,
-        batch_size=g.BATCH_SIZE,
     )
 
     project_meta_local = load_json_file(os.path.join(download_dir, "meta.json"))

@@ -1,3 +1,6 @@
-supervisely==6.2.9
-trimesh==3.9.35
-pynrrd==0.4.2
+supervisely==6.17.1
+# trimesh==3.9.35
+# pynrrd==0.4.2
+# SimpleITK==2.1.1.2
+# pydicom==2.3.0
+# stringcase==1.2.0

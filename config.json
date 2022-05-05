@@ -20,6 +20,7 @@
   "headless": true,
   "icon": "https://img.icons8.com/color/100/000000/xray.png",
   "icon_background": "#FFFFFF",
+  "instance_version": "6.4.48",
   "context_menu": {
     "target": ["volumes_project", "volumes_dataset"],
     "context_root": "Download as"

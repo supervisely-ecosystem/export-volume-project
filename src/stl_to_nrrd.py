@@ -22,6 +22,7 @@ def convert_all(dir_path, project_meta, key_id_map):
         volumes_dir = os.path.join(dataset_path, "volume")
         interpolation_dir = os.path.join(dataset_path, "interpolation")
         ann_dir = os.path.join(dataset_path, "ann")
+        mask_dir = os.path.join(dataset_path, "mask")
 
         nrrd_paths = [
             os.path.join(volumes_dir, nrrd_file)
@@ -43,7 +44,7 @@ def convert_all(dir_path, project_meta, key_id_map):
             for v_object in volume_annotation.objects:
                 output_file_name = f"{v_object._key.hex}.nrrd"
                 output_save_path = os.path.join(
-                    interpolation_dir, nrrd_file_name, output_file_name
+                    mask_dir, nrrd_file_name, output_file_name
                 )
 
                 v_object_id = g.class2idx[v_object.obj_class.name]
@@ -53,6 +54,7 @@ def convert_all(dir_path, project_meta, key_id_map):
                     nrrd_matrix,
                     nrrd_header["sizes"],
                     stl_path,
+                    mask_dir,
                     volume_annotation,
                     v_object,
                     key_id_map,
@@ -74,9 +76,9 @@ def convert_all(dir_path, project_meta, key_id_map):
                     )
 
             if vol_seg_mask is not None:
-                output_file_name = f"{get_file_name(nrrd_file_name)}_semantic_seg.nrrd"
+                output_file_name = "semantic_segmentation.nrrd"
                 output_save_path = os.path.join(
-                    interpolation_dir, nrrd_file_name, output_file_name
+                    mask_dir, nrrd_file_name, output_file_name
                 )
                 f.save_nrrd_mask(nrrd_header, vol_seg_mask, output_save_path)
 

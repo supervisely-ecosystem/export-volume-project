@@ -20,6 +20,7 @@ def segment_interpolation(
     vol_seg_mask_shape,
     nrrd_matrix,
     stl_dir,
+    mask_dir
 ):
     volume_object_key = key_id_map.get_object_id(volume_object._key)
     for sp_figure in volume_annotation.spatial_figures:
@@ -30,8 +31,8 @@ def segment_interpolation(
         interpolation_mask = stl_to_nrrd.convert_stl_to_nrrd(
             vol_seg_mask_shape, nrrd_matrix, stl_path
         )
-
-        output_save_path = os.path.join(stl_dir, f"{sp_figure._key.hex}.nrrd")
+        nrrd_file_name = os.path.basename(stl_dir)
+        output_save_path = os.path.join(mask_dir, nrrd_file_name, f"{sp_figure._key.hex}.nrrd")
         if g.convert_surface_to_mask:
             f.save_nrrd_mask(
                 nrrd_header, interpolation_mask.astype(np.short), output_save_path
@@ -45,6 +46,7 @@ def segment_object(
     nrrd_matrix,
     vol_seg_mask_shape,
     stl_dir,
+    mask_dir,
     volume_annotation,
     volume_object,
     key_id_map,
@@ -59,6 +61,7 @@ def segment_object(
         vol_seg_mask_shape,
         nrrd_matrix,
         stl_dir,
+        mask_dir
     )
     mask_2d = segment_2d(
         volume_annotation, volume_object, key_id_map, vol_seg_mask_shape

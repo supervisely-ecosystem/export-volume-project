@@ -29,6 +29,10 @@ Application key points:
 - Download annotations in `.json` and `.stl` formats
 - Download volumes data in `.nrrd` format
 - Convert closed mesh surfaces (`.stl`) to 3d masks (`.nrrd`)
+- Save 3d masks for every object (instance segmentation) in `.nrrd` format
+- Save all objects masks as single mask (semantic segmentation) in `.nrrd` format
+- Generate `class2idx.json` for semantic segmentation, e.g `{"lung": 1, "brain": 2}`
+- All 3d masks (.nrrd) are made for **compatibility with other popular medical viewers**. After download you can open volume and masks in specialised software like [MITK](http://www.mitk.org/) and [3D Slicer](https://www.slicer.org/)
 
 <div>
   <table>
@@ -42,16 +46,15 @@ Application key points:
         <img src="https://github.com/supervisely-ecosystem/export-volume-project/releases/download/v1.0.1/slicer_result.gif?raw=true" style="width:150%;"/>
       </td>
     </tr>
-  </table
+  </table>
 </div>
-
 
 
 # How To Run 
 
 1. Add  [Export volumes project in supervisely format](https://ecosystem.supervise.ly/apps/export-volume-project)
 
-<img data-key="sly-module-link" data-module-slug="supervisely-ecosystem/export-volume-project" src="https://imgur.com/WZFpiDE.png" width="450px" style='padding-bottom: 20px'/>
+<img data-key="sly-module-link" data-module-slug="supervisely-ecosystem/export-volume-project" src="https://i.imgur.com/DnAVFlZ.png" width="450px" style='padding-bottom: 20px'/>
 
 2. Run app from the context menu of **Volume Project** or **Volumes Dataset** -> `Download via app` -> `Export Supervisely volume project in supervisely format`
 
@@ -60,7 +63,7 @@ Application key points:
 3. Define export settings in modal window and press the **Run** button
 
 <div align="center" markdown>
-<img src="https://i.imgur.com/y4MGWUM.png" width="650"/>
+<img src="https://i.imgur.com/ty0wHZJ.png" width="650"/>
 </div>
 
 # How To Use 
@@ -73,3 +76,41 @@ Application key points:
 
 * `Team Files`->`Export-Supervisely-volumes-projects`->`<task_id>_<projectId>_<projectName>.tar`
 <img src="https://imgur.com/02KtweO.png"/>
+
+**Output project structure:**
+```text
+project.tar
+├── dataset_1
+│   ├── ann
+│   │   ├── CTACardio.nrrd.json
+│   │   ├── CTChest.nrrd.json
+│   │   └── MRHead.nrrd.json
+│   ├── interpolation
+│   │   └── MRHead.nrrd
+│   │       ├── 451e670973a247ac8f49b035dc407f63.stl
+│   │       ├── 461c37cdf8ff48a2943dcb989aa752d6.stl
+│   │       └── 9aab4ddf1ddb4af1836006f0f1a3a694.stl
+│   ├── mask
+│   │   ├── CTACardio.nrrd
+│   │   │   ├── 603b7dce7c8e412788882545d6814237.nrrd
+│   │   │   ├── 629b85fbb57c428aba1ee536a793c1ad.nrrd
+│   │   │   └── semantic_segmentation.nrrd
+│   │   ├── CTChest.nrrd
+│   │   │   ├── 86a6bd27d358440fb97783f5fc7fec57.nrrd
+│   │   │   └── semantic_segmentation.nrrd
+│   │   └── MRHead.nrrd
+│   │       ├── 451e670973a247ac8f49b035dc407f63.nrrd
+│   │       ├── 461c37cdf8ff48a2943dcb989aa752d6.nrrd
+│   │       ├── 4a0747937de44e73b252310ee693c267.nrrd
+│   │       ├── 9aab4ddf1ddb4af1836006f0f1a3a694.nrrd
+│   │       ├── aa4a036a5376475b946bbea0d8857ff9.nrrd
+│   │       ├── ca44240c7f27423b942c42848847e69d.nrrd
+│   │       └── semantic_segmentation.nrrd
+│   └── volume
+│       ├── CTACardio.nrrd
+│       ├── CTChest.nrrd
+│       └── MRHead.nrrd
+├── class2idx.json
+├── key_id_map.json
+└── meta.json
+```

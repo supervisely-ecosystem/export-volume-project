@@ -3,9 +3,23 @@
         <el-checkbox v-model="state.downloadAnnotations" disabled>Download annotations (.json, .stl)</el-checkbox>
     </div>
     <div class="mt10">
-        <el-checkbox v-model="state.downloadVolumes" @change="state.convertSurfaceToMask = !state.downloadVolumes ? false : state.convertSurfaceToMask">Download volume data (.nrrd)</el-checkbox>
+        <el-checkbox v-model="state.downloadVolumes"
+                     @change="state.convertSurfaceToMask = !state.downloadVolumes ? false : state.convertSurfaceToMask">Download volume data (.nrrd)
+        </el-checkbox>
     </div>
     <div class="mt10">
-        <el-checkbox v-model="state.convertSurfaceToMask" :disabled="!state.downloadVolumes" >Convert closed mesh surfaces (.stl) to 3d masks (.nrrd) and save both files</el-checkbox>
+        <el-checkbox v-model="state.convertSurfaceToMask" :disabled="!state.downloadVolumes">Convert closed mesh
+            surfaces (.stl) to 3d masks (.nrrd) and save both files
+        </el-checkbox>
+    </div>
+    <div class="mt10">
+        <el-checkbox v-model="state.saveInstanceSegmentationMasks" :disabled="!state.downloadVolumes">Save masks for
+            every object (.nrrd)
+        </el-checkbox>
+    </div>
+    <div class="mt10">
+        <el-checkbox v-model="state.saveSemanticSegmentationMasks" :disabled="!state.downloadVolumes">Save all objects as
+            single mask (.nrrd)
+        </el-checkbox>
     </div>
 </div>

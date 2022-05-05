@@ -32,6 +32,7 @@ Application key points:
 - Save 3d masks for every object (instance segmentation) in `.nrrd` format
 - Save all objects masks as single mask (semantic segmentation) in `.nrrd` format
 - Generate `class2idx.json` for semantic segmentation, e.g `{"lung": 1, "brain": 2}`
+- All 3d masks (.nrrd) are made for **compatibility with other popular medical viewers**. After download you can open volume and masks in specialised software like [MITK](http://www.mitk.org/) and [3D Slicer](https://www.slicer.org/)
 
 <div>
   <table>

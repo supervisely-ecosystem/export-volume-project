@@ -18,9 +18,9 @@
     "saveSemanticSegmentationMasks": true
   },
   "task_location": "workspace_tasks",
-  "isolate": true,
   "headless": true,
-  "icon": "https://img.icons8.com/color/100/000000/xray.png",
+  "icon_cover": true,
+  "icon": "https://github.com/supervisely-ecosystem/export-volume-project/releases/download/v2.2.1/icons8-x-ray-100.png",
   "icon_background": "#FFFFFF",
   "context_menu": {
     "target": [

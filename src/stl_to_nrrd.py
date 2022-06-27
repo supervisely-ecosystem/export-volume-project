@@ -63,9 +63,7 @@ def convert_all(dir_path, project_meta, key_id_map):
                     f.save_nrrd_mask(
                         nrrd_header, curr_obj_mask.astype(np.short), output_save_path
                     )
-
                     v_object_name = v_object.obj_class.name
-
                     f.save_nrrd_mask_readable_name(nrrd_header, curr_obj_mask.astype(np.short), output_save_path,
                                                    v_object_name)
                 else:

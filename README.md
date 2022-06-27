@@ -30,6 +30,7 @@ Application key points:
 - Download volumes data in `.nrrd` format
 - Convert closed mesh surfaces (`.stl`) to 3d masks (`.nrrd`)
 - Save 3d masks for every object (instance segmentation) in `.nrrd` format
+- Instance segmentation masks are duplicated with human readable file names for convenience
 - Save all objects masks as single mask (semantic segmentation) in `.nrrd` format
 - Generate `class2idx.json` for semantic segmentation, e.g `{"lung": 1, "brain": 2}`
 - All 3d masks (.nrrd) are made for **compatibility with other popular medical viewers**. After download you can open volume and masks in specialised software like [MITK](http://www.mitk.org/) and [3D Slicer](https://www.slicer.org/)
@@ -92,13 +93,24 @@ project.tar
 │   │       └── 9aab4ddf1ddb4af1836006f0f1a3a694.stl
 │   ├── mask
 │   │   ├── CTACardio.nrrd
+│   │   │   ├── human-readable-objects
+│   │   │   │   └── lung_object_001.nrrd
 │   │   │   ├── 603b7dce7c8e412788882545d6814237.nrrd
 │   │   │   ├── 629b85fbb57c428aba1ee536a793c1ad.nrrd
 │   │   │   └── semantic_segmentation.nrrd
 │   │   ├── CTChest.nrrd
+│   │   │   ├── human-readable-objects
+│   │   │   │   └── lung_object_001.nrrd
 │   │   │   ├── 86a6bd27d358440fb97783f5fc7fec57.nrrd
 │   │   │   └── semantic_segmentation.nrrd
 │   │   └── MRHead.nrrd
+│   │       ├── human-readable-objects
+│   │       │   ├── brain_object_001.nrrd
+│   │       │   ├── brain_object_002.nrrd
+│   │       │   ├── brain_object_003.nrrd
+│   │       │   ├── brain_object_004.nrrd
+│   │       │   ├── brain_object_005.nrrd
+│   │       │   └── brain_object_006.nrrd
 │   │       ├── 451e670973a247ac8f49b035dc407f63.nrrd
 │   │       ├── 461c37cdf8ff48a2943dcb989aa752d6.nrrd
 │   │       ├── 4a0747937de44e73b252310ee693c267.nrrd

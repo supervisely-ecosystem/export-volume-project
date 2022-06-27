@@ -63,6 +63,11 @@ def convert_all(dir_path, project_meta, key_id_map):
                     f.save_nrrd_mask(
                         nrrd_header, curr_obj_mask.astype(np.short), output_save_path
                     )
+
+                    v_object_name = v_object.obj_class.name
+
+                    f.save_nrrd_mask_readable_name(nrrd_header, curr_obj_mask.astype(np.short), output_save_path,
+                                                   v_object_name)
                 else:
                     f.save_nrrd_mask(
                         nrrd_header,
@@ -169,13 +174,13 @@ def convert_stl_to_nrrd(mask_shape, voxel_to_world, stl_path):
     ]
 
     padded_mask[
-        vol_inter_max[0] : vol_inter_min[0],
-        vol_inter_max[1] : vol_inter_min[1],
-        vol_inter_max[2] : vol_inter_min[2],
+    vol_inter_max[0]: vol_inter_min[0],
+    vol_inter_max[1]: vol_inter_min[1],
+    vol_inter_max[2]: vol_inter_min[2],
     ] = mask[
-        vol_inter_max[0] - start[0] : vol_inter_min[0] - start[0],
-        vol_inter_max[1] - start[1] : vol_inter_min[1] - start[1],
-        vol_inter_max[2] - start[2] : vol_inter_min[2] - start[2],
-    ]
+        vol_inter_max[0] - start[0]: vol_inter_min[0] - start[0],
+        vol_inter_max[1] - start[1]: vol_inter_min[1] - start[1],
+        vol_inter_max[2] - start[2]: vol_inter_min[2] - start[2],
+        ]
 
     return padded_mask

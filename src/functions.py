@@ -43,3 +43,34 @@ def save_nrrd_mask(nrrd_header, curr_obj_mask, output_save_path):
         },
         compression_level=9,
     )
+
+
+def save_nrrd_mask_readable_name(nrrd_header, curr_obj_mask, output_save_path, object_name):
+    output_dir = os.path.join(os.path.dirname(output_save_path), "human-readable-objects")
+    if not os.path.exists(output_dir):
+        mkdir(output_dir)
+
+    output_save_path = os.path.join(output_dir, f"{object_name}.nrrd")
+    output_save_path = get_nonexistent_path(output_save_path)
+
+    nrrd.write(
+        output_save_path,
+        curr_obj_mask,
+        header={
+            "encoding": "gzip",
+            "space": nrrd_header["space"],
+            "space directions": nrrd_header["space directions"],
+            "space origin": nrrd_header["space origin"],
+        },
+        compression_level=9,
+    )
+
+
+def get_nonexistent_path(file_path):
+    filename, file_extension = os.path.splitext(file_path)
+    i = 1
+    new_fname = f"{filename}_object_{i:03d}{file_extension}"
+    while os.path.exists(new_fname):
+        i += 1
+        new_fname = f"{filename}_object_{i:03d}{file_extension}"
+    return new_fname

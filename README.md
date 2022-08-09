@@ -1,5 +1,6 @@
 <div align="center" markdown>
-<img src="https://imgur.com/7IHY0Gs.png">
+
+<img src="https://user-images.githubusercontent.com/106374579/183687527-ffd825e7-a128-4bf2-9e48-ec71015bbc6c.png">
 
 # Export Supervisely Volumes
 

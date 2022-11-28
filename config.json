@@ -7,7 +7,7 @@
   ],
   "description": "Export project or dataset in Supervisely volumes format",
   "docker_image": "supervisely/base-py-sdk:6.35.0",
-  "instance_version": "6.4.48",
+  "instance_version": "6.6.1",
   "main_script": "src/main.py",
   "modal_template": "src/modal.html",
   "modal_template_state": {
@@ -29,5 +29,5 @@
     ],
     "context_root": "Download as"
   },
-  "poster": "https://user-images.githubusercontent.com/106374579/183687527-ffd825e7-a128-4bf2-9e48-ec71015bbc6c.png"
+  "poster": "https://user-images.githubusercontent.com/48913536/204284300-a30b77c2-4381-467d-ab95-c993f133241f.png"
 }

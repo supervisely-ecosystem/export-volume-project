@@ -6,7 +6,7 @@
     "export"
   ],
   "description": "Export project or dataset in Supervisely volumes format",
-  "docker_image": "supervisely/base-py-sdk:6.68.60",
+  "docker_image": "supervisely/base-py-sdk:6.68.61",
   "instance_version": "6.6.1",
   "main_script": "src/main.py",
   "modal_template": "src/modal.html",

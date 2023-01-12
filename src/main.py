@@ -58,9 +58,10 @@ def download(api: sly.Api, task_id, context, state, app_logger):
     app_logger.info("Result directory is archived")
 
     upload_progress = []
-    remote_archive_path = "/export-supervisely-volumes-projects/{}_{}".format(
+    remote_archive_path = os.path.join(
+        sly.team_files.RECOMMENDED_EXPORT_PATH, "export-supervisely-volumes-projects/{}_{}".format(
         task_id, full_archive_name
-    )
+    ))
     remote_archive_path = api.file.get_free_name(g.TEAM_ID, remote_archive_path)
 
     def _print_progress(monitor, upload_progress):

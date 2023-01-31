@@ -5,7 +5,7 @@ import nrrd
 import numpy as np
 import supervisely as sly
 import trimesh
-from supervisely.io.fs import get_file_name, get_file_name_with_ext
+from supervisely.io.fs import get_file_name_with_ext
 
 import draw_masks
 import functions as f

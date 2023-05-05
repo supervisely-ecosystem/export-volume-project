@@ -20,7 +20,7 @@ def segment_interpolation(
     vol_seg_mask_shape,
     nrrd_matrix,
     stl_dir,
-    mask_dir
+    mask_dir,
 ):
     volume_object_key = key_id_map.get_object_id(volume_object._key)
     for sp_figure in volume_annotation.spatial_figures:
@@ -34,9 +34,7 @@ def segment_interpolation(
         nrrd_file_name = os.path.basename(stl_dir)
         output_save_path = os.path.join(mask_dir, nrrd_file_name, f"{sp_figure._key.hex}.nrrd")
         if g.convert_surface_to_mask:
-            f.save_nrrd_mask(
-                nrrd_header, interpolation_mask.astype(np.short), output_save_path
-            )
+            f.save_nrrd_mask(nrrd_header, interpolation_mask.astype(np.short), output_save_path)
         mask = np.where(interpolation_mask != 0, interpolation_mask, mask)
     return mask
 
@@ -61,11 +59,9 @@ def segment_object(
         vol_seg_mask_shape,
         nrrd_matrix,
         stl_dir,
-        mask_dir
+        mask_dir,
     )
-    mask_2d = segment_2d(
-        volume_annotation, volume_object, key_id_map, vol_seg_mask_shape
-    )
+    mask_2d = segment_2d(volume_annotation, volume_object, key_id_map, vol_seg_mask_shape)
     mask = np.where(mask_2d != 0, mask_2d, mask)
     return mask
 
@@ -145,4 +141,12 @@ def draw_figure_on_slice(mask, plane, vol_slice_id, slice_bitmap, bitmap_origin)
             vol_slice_id,
         ] = cur_bitmap
 
+    return mask
+
+
+def merge_masks(masks):
+    mask = masks.pop(0)
+    while masks:
+        mask_add = masks.pop(0)
+        mask = np.where(mask != 0, mask, mask_add)
     return mask

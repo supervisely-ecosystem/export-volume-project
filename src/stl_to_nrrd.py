@@ -5,7 +5,8 @@ import nrrd
 import numpy as np
 import supervisely as sly
 import trimesh
-from supervisely.io.fs import get_file_name, get_file_name_with_ext
+from supervisely.io.fs import get_file_name_with_ext
+from supervisely.geometry.bitmap_3d import Bitmap3d
 
 import draw_masks
 import functions as f
@@ -42,6 +43,7 @@ def convert_all(dir_path, project_meta, key_id_map):
             if g.save_semantic_segmentation:
                 vol_seg_mask = np.zeros(nrrd_header["sizes"]).astype(np.short)
             for v_object in volume_annotation.objects:
+                
                 output_file_name = f"{v_object._key.hex}.nrrd"
                 output_save_path = os.path.join(
                     mask_dir, nrrd_file_name, output_file_name
@@ -49,16 +51,31 @@ def convert_all(dir_path, project_meta, key_id_map):
 
                 v_object_id = g.class2idx[v_object.obj_class.name]
                 stl_path = os.path.join(interpolation_dir, nrrd_file_name)
-                curr_obj_mask = draw_masks.segment_object(
-                    nrrd_header,
-                    nrrd_matrix,
-                    nrrd_header["sizes"],
-                    stl_path,
-                    mask_dir,
-                    volume_annotation,
-                    v_object,
-                    key_id_map,
-                )
+                
+                if v_object.obj_class._geometry_type == Bitmap3d:
+                    volume_object_key = key_id_map.get_object_id(v_object._key)
+                    masks = []
+                    for sp_figure in volume_annotation.spatial_figures:
+                        figure_vobj_key = key_id_map.get_object_id(sp_figure.volume_object._key)
+                        if figure_vobj_key == volume_object_key:
+                            masks.append(sp_figure.geometry.data)
+                    if len(masks) > 1:                           
+                        curr_obj_mask = draw_masks.merge_masks(masks)
+                    else:
+                        curr_obj_mask = masks[0]
+                                       
+                else:
+                    curr_obj_mask = draw_masks.segment_object(
+                        nrrd_header,
+                        nrrd_matrix,
+                        nrrd_header["sizes"],
+                        stl_path,
+                        mask_dir,
+                        volume_annotation,
+                        v_object,
+                        key_id_map,
+                    )
+                    
                 if g.save_instance_segmentation:
                     f.save_nrrd_mask(
                         nrrd_header, curr_obj_mask.astype(np.short), output_save_path

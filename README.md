@@ -81,48 +81,49 @@ Application key points:
 **Output project structure:**
 ```text
 project.tar
-├── dataset_1
-│   ├── ann
-│   │   ├── CTACardio.nrrd.json
-│   │   ├── CTChest.nrrd.json
-│   │   └── MRHead.nrrd.json
-│   ├── interpolation
-│   │   └── MRHead.nrrd
-│   │       ├── 451e670973a247ac8f49b035dc407f63.stl
-│   │       ├── 461c37cdf8ff48a2943dcb989aa752d6.stl
-│   │       └── 9aab4ddf1ddb4af1836006f0f1a3a694.stl
-│   ├── mask
-│   │   ├── CTACardio.nrrd
-│   │   │   ├── human-readable-objects
-│   │   │   │   └── lung_object_001.nrrd
-│   │   │   ├── 603b7dce7c8e412788882545d6814237.nrrd
-│   │   │   ├── 629b85fbb57c428aba1ee536a793c1ad.nrrd
-│   │   │   └── semantic_segmentation.nrrd
-│   │   ├── CTChest.nrrd
-│   │   │   ├── human-readable-objects
-│   │   │   │   └── lung_object_001.nrrd
-│   │   │   ├── 86a6bd27d358440fb97783f5fc7fec57.nrrd
-│   │   │   └── semantic_segmentation.nrrd
-│   │   └── MRHead.nrrd
-│   │       ├── human-readable-objects
-│   │       │   ├── brain_object_001.nrrd
-│   │       │   ├── brain_object_002.nrrd
-│   │       │   ├── brain_object_003.nrrd
-│   │       │   ├── brain_object_004.nrrd
-│   │       │   ├── brain_object_005.nrrd
-│   │       │   └── brain_object_006.nrrd
-│   │       ├── 451e670973a247ac8f49b035dc407f63.nrrd
-│   │       ├── 461c37cdf8ff48a2943dcb989aa752d6.nrrd
-│   │       ├── 4a0747937de44e73b252310ee693c267.nrrd
-│   │       ├── 9aab4ddf1ddb4af1836006f0f1a3a694.nrrd
-│   │       ├── aa4a036a5376475b946bbea0d8857ff9.nrrd
-│   │       ├── ca44240c7f27423b942c42848847e69d.nrrd
-│   │       └── semantic_segmentation.nrrd
-│   └── volume
-│       ├── CTACardio.nrrd
-│       ├── CTChest.nrrd
-│       └── MRHead.nrrd
-├── class2idx.json
-├── key_id_map.json
-└── meta.json
+└── project_dir
+    ├── dataset_1
+    │   ├── ann
+    │   │   ├── CTACardio.nrrd.json
+    │   │   ├── CTChest.nrrd.json
+    │   │   └── MRHead.nrrd.json
+    │   ├── interpolation
+    │   │   └── MRHead.nrrd
+    │   │       ├── 451e670973a247ac8f49b035dc407f63.stl
+    │   │       ├── 461c37cdf8ff48a2943dcb989aa752d6.stl
+    │   │       └── 9aab4ddf1ddb4af1836006f0f1a3a694.stl
+    │   ├── mask
+    │   │   ├── CTACardio.nrrd
+    │   │   │   ├── human-readable-objects
+    │   │   │   │   └── lung_object_001.nrrd
+    │   │   │   ├── 603b7dce7c8e412788882545d6814237.nrrd
+    │   │   │   ├── 629b85fbb57c428aba1ee536a793c1ad.nrrd
+    │   │   │   └── semantic_segmentation.nrrd
+    │   │   ├── CTChest.nrrd
+    │   │   │   ├── human-readable-objects
+    │   │   │   │   └── lung_object_001.nrrd
+    │   │   │   ├── 86a6bd27d358440fb97783f5fc7fec57.nrrd
+    │   │   │   └── semantic_segmentation.nrrd
+    │   │   └── MRHead.nrrd
+    │   │       ├── human-readable-objects
+    │   │       │   ├── brain_object_001.nrrd
+    │   │       │   ├── brain_object_002.nrrd
+    │   │       │   ├── brain_object_003.nrrd
+    │   │       │   ├── brain_object_004.nrrd
+    │   │       │   ├── brain_object_005.nrrd
+    │   │       │   └── brain_object_006.nrrd
+    │   │       ├── 451e670973a247ac8f49b035dc407f63.nrrd
+    │   │       ├── 461c37cdf8ff48a2943dcb989aa752d6.nrrd
+    │   │       ├── 4a0747937de44e73b252310ee693c267.nrrd
+    │   │       ├── 9aab4ddf1ddb4af1836006f0f1a3a694.nrrd
+    │   │       ├── aa4a036a5376475b946bbea0d8857ff9.nrrd
+    │   │       ├── ca44240c7f27423b942c42848847e69d.nrrd
+    │   │       └── semantic_segmentation.nrrd
+    │   └── volume
+    │       ├── CTACardio.nrrd
+    │       ├── CTChest.nrrd
+    │       └── MRHead.nrrd
+    ├── class2idx.json
+    ├── key_id_map.json
+    └── meta.json
 ```

@@ -1,1 +1,2 @@
-supervisely==6.68.112
+# supervisely==6.68.112
+git+https://github.com/supervisely/supervisely.git@add_bitmap3d_support

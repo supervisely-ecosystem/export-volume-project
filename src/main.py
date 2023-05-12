@@ -3,8 +3,7 @@ import os
 import supervisely as sly
 from supervisely.api.volume.volume_api import VolumeApi
 from supervisely.io.json import dump_json_file, load_json_file
-from supervisely.project.volume_project import (download_volume_project,
-                                                upload_volume_project)
+from supervisely.project.volume_project import download_volume_project, upload_volume_project
 from supervisely.video_annotation.key_id_map import KeyIdMap
 
 import functions as f
@@ -23,7 +22,9 @@ def download(api: sly.Api, task_id, context, state, app_logger):
         dataset = api.dataset.get_info_by_id(g.DATASET_ID)
         project = api.project.get_info_by_id(dataset.project_id)
 
-    download_dir = os.path.join(g.my_app.data_dir, f"{project.id}_{project.name}")
+    download_dir = os.path.join(
+        g.my_app.data_dir, f"{project.id}_{project.name}/{project.id}_{project.name}"
+    )
     sly.fs.remove_dir(download_dir)
 
     download_volume_project(
@@ -54,14 +55,15 @@ def download(api: sly.Api, task_id, context, state, app_logger):
 
     full_archive_name = str(project.id) + "_" + project.name + ".tar"
     result_archive = os.path.join(g.my_app.data_dir, full_archive_name)
-    sly.fs.archive_directory(download_dir, result_archive)
+    archive_dir = os.path.dirname(download_dir)
+    sly.fs.archive_directory(archive_dir, result_archive)
     app_logger.info("Result directory is archived")
 
     upload_progress = []
     remote_archive_path = os.path.join(
-        sly.team_files.RECOMMENDED_EXPORT_PATH, "export-supervisely-volumes-projects/{}_{}".format(
-        task_id, full_archive_name
-    ))
+        sly.team_files.RECOMMENDED_EXPORT_PATH,
+        "export-supervisely-volumes-projects/{}_{}".format(task_id, full_archive_name),
+    )
     remote_archive_path = api.file.get_free_name(g.TEAM_ID, remote_archive_path)
 
     def _print_progress(monitor, upload_progress):

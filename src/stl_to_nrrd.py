@@ -7,7 +7,7 @@ import supervisely as sly
 import trimesh
 import copy
 from supervisely.io.fs import get_file_name_with_ext
-from supervisely.geometry.bitmap_3d import Bitmap3d
+from supervisely.geometry.mask_3d import Mask3D
 from supervisely.geometry.any_geometry import AnyGeometry
 
 import draw_masks
@@ -49,7 +49,7 @@ def convert_all(dir_path, project_meta, key_id_map):
                 v_object_id = g.class2idx[v_object.obj_class.name]
                 stl_path = os.path.join(interpolation_dir, nrrd_file_name)
 
-                if v_object.obj_class._geometry_type == Bitmap3d:
+                if v_object.obj_class._geometry_type == Mask3D:
                     volume_object_key = key_id_map.get_object_id(v_object._key)
                     masks = []
                     for sp_figure in volume_annotation.spatial_figures:
@@ -70,9 +70,9 @@ def convert_all(dir_path, project_meta, key_id_map):
                         if figure_vobj_key == volume_object_key:
                             masks.append(sp_figure.geometry.data)
                     if len(masks) > 1:
-                        bitmap3d_obj_mask = draw_masks.merge_masks(masks)
+                        mask3d_obj_mask = draw_masks.merge_masks(masks)
                     else:
-                        bitmap3d_obj_mask = masks[0]
+                        mask3d_obj_mask = masks[0]
 
                     volume_annotation_cp.spatial_figures.clear()
 
@@ -87,7 +87,7 @@ def convert_all(dir_path, project_meta, key_id_map):
                         key_id_map,
                     )
 
-                    curr_obj_mask = draw_masks.merge_masks([bitmap3d_obj_mask, other_obj_mask])
+                    curr_obj_mask = draw_masks.merge_masks([mask3d_obj_mask, other_obj_mask])
 
                 else:
                     curr_obj_mask = draw_masks.segment_object(

@@ -148,5 +148,5 @@ def merge_masks(masks):
     mask = masks.pop(0)
     while masks:
         mask_add = masks.pop(0)
-        mask = np.where(mask != 0, mask, mask_add)
+        mask = np.where(mask_add != 0, mask_add, mask)
     return mask

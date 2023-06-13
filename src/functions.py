@@ -41,7 +41,7 @@ def save_nrrd_mask(nrrd_header, curr_obj_mask, output_save_path):
             "space directions": nrrd_header["space directions"],
             "space origin": nrrd_header["space origin"],
         },
-        compression_level=1,
+        compression_level=9,
     )
 
 
@@ -62,7 +62,7 @@ def save_nrrd_mask_readable_name(nrrd_header, curr_obj_mask, output_save_path, o
             "space directions": nrrd_header["space directions"],
             "space origin": nrrd_header["space origin"],
         },
-        compression_level=1,
+        compression_level=9,
     )
 
 

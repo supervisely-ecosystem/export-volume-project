@@ -2,4 +2,5 @@ secret_debug.env
 .idea
 venv
 /src/debug
-/supervisely_lib
+supervisely
+__pycache__

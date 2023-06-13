@@ -56,23 +56,25 @@ Application key points:
 
 2. Run the app from the context menu of **Volume Project** or **Volumes Dataset** -> `Download via app` -> `Export Supervisely volume project in Supervisely format`
 
-<img src="https://imgur.com/xGX2kjq.png"/>
+<img width="1280" alt="2023-06-13_18-44-30" src="https://github.com/supervisely-ecosystem/export-volume-project/assets/57998637/76b2a634-8e2f-463b-bf14-fb16afb84874">
 
 3. Define export settings in the modal window and press the **Run** button
 
-<div align="center" markdown>
-<img src="https://i.imgur.com/ty0wHZJ.png" width="650"/>
-</div>
+<img width="405" alt="2023-06-13_18-46-45" src="https://github.com/supervisely-ecosystem/export-volume-project/assets/57998637/cdc63faf-24ba-44da-8daa-4a69ec7700d1">
+
 
 # How To Use
 
 1. Wait for the app to process your data, once done, a link for download will become available
-   <img src="https://imgur.com/9SYRK5n.png"/>
+   <img width="1280" alt="2023-06-13_18-38-53" src="https://github.com/supervisely-ecosystem/export-volume-project/assets/57998637/51658e8b-edf1-4285-a28f-9a5785c24f96">
+
 
 2. The resulting archive will be available for download by link at the `Tasks` page or from `Team Files` by the following path:
 
-- `Team Files`->`Export-Supervisely-volumes-projects`->`<task_id>_<projectId>_<projectName>.tar`
-  <img src="https://imgur.com/02KtweO.png"/>
+- `Team Files` -> `tmp` -> `supervisely` -> `export` -> `export-supervisely-volumes-projects` -> `<task_id>_<projectId>_<projectName>.tar`
+
+
+  <img width="1281" alt="2023-06-13_18-28-51" src="https://github.com/supervisely-ecosystem/export-volume-project/assets/57998637/c2f556ef-db93-4662-8da3-5467e04db1eb">
 
 **Output project structure:**
 

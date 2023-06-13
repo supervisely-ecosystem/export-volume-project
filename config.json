@@ -4,7 +4,7 @@
   "categories": ["dicom", "export"],
   "description": "Export project or dataset in Supervisely volumes format",
   "docker_image": "supervisely/base-py-sdk:6.72.32",
-  "min_instance_version": "6.8.0",
+  "instance_version": "6.8.0",
   "main_script": "src/main.py",
   "modal_template": "src/modal.html",
   "modal_template_state": {

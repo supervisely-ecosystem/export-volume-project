@@ -2,7 +2,7 @@
 
 <img src="https://user-images.githubusercontent.com/48913536/204284300-a30b77c2-4381-467d-ab95-c993f133241f.png">
 
-# Export Supervisely Volumes
+# Export Volumes and 3D Annotations
 
 <p align="center">
   <a href="#Overview">Overview</a> •
@@ -20,18 +20,19 @@
 
 ## Overview
 
-Export Supervisely volume project or dataset. You can learn more about the format and its structure by reading [documentation](https://docs.supervise.ly/data-organization/00_ann_format_navi/08_supervisely_format_volume).
+🔥 All 3D data is exported as `.nrrd` for **compatibility with other popular medical viewers**, so that once downloaded, the volume and masks can be opened in specialized software like [MITK](http://www.mitk.org/) and [3D Slicer](https://www.slicer.org/) without any further action!
+
+You can export as a whole Supervisely project or only as a dataset. To learn more about the format and its structure read [documentation](https://docs.supervise.ly/data-organization/00_ann_format_navi/08_supervisely_format_volume).
 
 Application key points:
-
-- Download annotations in `.json` and `.stl` formats
-- Download volumes data in `.nrrd` format
-- Convert closed mesh surfaces (`.stl`) to 3d masks (`.nrrd`)
-- Save 3d masks for every object (instance segmentation) in `.nrrd` format
+- Export annotations in `.json` and `.stl` formats
+- Export volumes data in `.nrrd` format
+- Convert closed mesh surfaces `.stl` to 3D masks as `.nrrd`
+- Export Instance segmentation as 3D masks for every object in `.nrrd` format
 - Instance segmentation masks are duplicated with human-readable file names for convenience
-- Save all objects masks as a single mask (semantic segmentation) in `.nrrd` format
-- Generate `class2idx.json` for semantic segmentation, e.g `{"lung": 1, "brain": 2}`
-- All 3d masks (.nrrd) are made for **compatibility with other popular medical viewers**. After downloading, you can open volume and masks in specialized software like [MITK](http://www.mitk.org/) and [3D Slicer](https://www.slicer.org/)
+- Export Semantic segmentation as a single mask for all objects in `.nrrd` format
+- Semantic segmentation generates `class2idx.json` mapping, e.g `{"lung": 1, "brain": 2}` 
+
 
 <div>
   <table>

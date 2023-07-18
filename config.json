@@ -1,8 +1,8 @@
 {
-  "name": "Export volumes in Supervisely format",
+  "name": "Export Volumes with 3D Annotations",
   "type": "app",
   "categories": ["dicom", "export"],
-  "description": "Export project or dataset in Supervisely volumes format",
+  "description": "To Supervisely format, compatible with 3D Slicer, MITK",
   "docker_image": "supervisely/base-py-sdk:6.72.55",
   "instance_version": "6.8.0",
   "main_script": "src/main.py",

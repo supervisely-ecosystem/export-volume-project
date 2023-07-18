@@ -2,7 +2,7 @@
 
 <img src="https://user-images.githubusercontent.com/48913536/204284300-a30b77c2-4381-467d-ab95-c993f133241f.png">
 
-# Export Volumes and 3D Annotations
+# Export Volumes with 3D Annotations
 
 <p align="center">
   <a href="#Overview">Overview</a> •

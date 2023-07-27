@@ -1,27 +1,33 @@
 {
-  "name": "Export Volumes with 3D Annotations",
-  "type": "app",
-  "categories": ["dicom", "export"],
-  "description": "To Supervisely format, compatible with 3D Slicer, MITK",
-  "docker_image": "supervisely/base-py-sdk:6.72.55",
-  "instance_version": "6.8.0",
-  "main_script": "src/main.py",
-  "modal_template": "src/modal.html",
-  "modal_template_state": {
-    "downloadVolumes": true,
-    "convertSurfaceToMask": true,
-    "downloadAnnotations": true,
-    "saveInstanceSegmentationMasks": true,
-    "saveSemanticSegmentationMasks": true
-  },
-  "task_location": "workspace_tasks",
-  "headless": true,
-  "icon_cover": true,
-  "icon": "https://github.com/supervisely-ecosystem/export-volume-project/releases/download/v2.2.1/icons8-x-ray-100.png",
-  "icon_background": "#FFFFFF",
-  "context_menu": {
-    "target": ["volumes_project", "volumes_dataset"],
-    "context_root": "Download as"
-  },
-  "poster": "https://user-images.githubusercontent.com/48913536/204284300-a30b77c2-4381-467d-ab95-c993f133241f.png"
+    "name": "Export Volumes with 3D Annotations",
+    "type": "app",
+    "categories": [
+        "dicom",
+        "export"
+    ],
+    "description": "To Supervisely format, compatible with 3D Slicer, MITK",
+    "docker_image": "supervisely/import-export:0.0.2",
+    "instance_version": "6.8.0",
+    "main_script": "src/main.py",
+    "modal_template": "src/modal.html",
+    "modal_template_state": {
+        "downloadVolumes": true,
+        "convertSurfaceToMask": true,
+        "downloadAnnotations": true,
+        "saveInstanceSegmentationMasks": true,
+        "saveSemanticSegmentationMasks": true
+    },
+    "task_location": "workspace_tasks",
+    "headless": true,
+    "icon_cover": true,
+    "icon": "https://github.com/supervisely-ecosystem/export-volume-project/releases/download/v2.2.1/icons8-x-ray-100.png",
+    "icon_background": "#FFFFFF",
+    "context_menu": {
+        "target": [
+            "volumes_project",
+            "volumes_dataset"
+        ],
+        "context_root": "Download as"
+    },
+    "poster": "https://user-images.githubusercontent.com/48913536/204284300-a30b77c2-4381-467d-ab95-c993f133241f.png"
 }

@@ -1,6 +1,6 @@
 <div align="center" markdown>
 
-<img src="https://user-images.githubusercontent.com/48913536/204284300-a30b77c2-4381-467d-ab95-c993f133241f.png">
+<img src="https://github.com/supervisely-ecosystem/export-volume-project/assets/57998637/c8c60985-6f81-4fe0-811a-50bdb9484200">
 
 # Export Volumes with 3D Annotations
 
@@ -36,14 +36,14 @@ Application key points:
 
 <div>
   <table>
-    <tr style="width: 100%">
+    <tr style="width:100%">
       <td>
         <b>Volumes Data in Supervisely format</b>
-        <img src="https://github.com/supervisely-ecosystem/export-volume-project/releases/download/v1.0.1/interface.gif?raw=true" style="width:150%;"/>
+        <img src="https://github.com/supervisely-ecosystem/export-volume-project/assets/57998637/ed1951e5-65a5-45ea-81ce-9a642f2468e6?raw-true"/>
       </td>
       <td>
-        <b>Exported .stl with 3d segmentation masks</b>
-        <img src="https://github.com/supervisely-ecosystem/export-volume-project/releases/download/v1.0.1/slicer_result.gif?raw=true" style="width:150%;"/>
+        <b>Exported .stl with 3D segmentation mask</b>
+        <img src="https://github.com/supervisely-ecosystem/export-volume-project/assets/57998637/26c862f9-a6a9-4378-937b-8d562fccc7f9?raw=true"/>
       </td>
     </tr>
   </table>
@@ -53,29 +53,29 @@ Application key points:
 
 1. Add [Export volumes project in Supervisely format](https://ecosystem.supervise.ly/apps/export-volume-project)
 
-<img data-key="sly-module-link" data-module-slug="supervisely-ecosystem/export-volume-project" src="https://i.imgur.com/DnAVFlZ.png" width="450px" style='padding-bottom: 20px'/>
+   <img data-key="sly-module-link" data-module-slug="supervisely-ecosystem/export-volume-project" src="https://i.imgur.com/DnAVFlZ.png" width="450px" style='padding-bottom: 20px'/>
 
 2. Run the app from the context menu of **Volume Project** or **Volumes Dataset** -> `Download via app` -> `Export Supervisely volume project in Supervisely format`
 
-<img width="1280" alt="2023-06-13_18-44-30" src="https://github.com/supervisely-ecosystem/export-volume-project/assets/57998637/76b2a634-8e2f-463b-bf14-fb16afb84874">
+   <img width="1250" alt="2023-06-13_18-44-30" src="https://github.com/supervisely-ecosystem/export-volume-project/assets/57998637/563084d9-e8d5-485f-a90e-dcc5eb921175">
 
 3. Define export settings in the modal window and press the **Run** button
 
-<img width="405" alt="2023-06-13_18-46-45" src="https://github.com/supervisely-ecosystem/export-volume-project/assets/57998637/cdc63faf-24ba-44da-8daa-4a69ec7700d1">
+   <img width="405" alt="2023-06-13_18-46-45" src="https://github.com/supervisely-ecosystem/export-volume-project/assets/57998637/cdc63faf-24ba-44da-8daa-4a69ec7700d1">
 
 
 # How To Use
 
-1. Wait for the app to process your data, once done, a link for download will become available
-   <img width="1280" alt="2023-06-13_18-38-53" src="https://github.com/supervisely-ecosystem/export-volume-project/assets/57998637/51658e8b-edf1-4285-a28f-9a5785c24f96">
+1. Wait for the app to process your data, once done, a link for the download will become available
+   <img width="1250" alt="2023-06-13_18-38-53" src="https://github.com/supervisely-ecosystem/export-volume-project/assets/57998637/6432147e-5b4d-4633-943e-66166a0d4ad4">
 
 
-2. The resulting archive will be available for download by link at the `Tasks` page or from `Team Files` by the following path:
+2. The resulting archive will be available for download by the link at the `Tasks` page or from `Team Files` by the following path:
 
 - `Team Files` -> `tmp` -> `supervisely` -> `export` -> `export-supervisely-volumes-projects` -> `<task_id>_<projectId>_<projectName>.tar`
 
 
-  <img width="1281" alt="2023-06-13_18-28-51" src="https://github.com/supervisely-ecosystem/export-volume-project/assets/57998637/c2f556ef-db93-4662-8da3-5467e04db1eb">
+  <img width="1250" alt="2023-06-13_18-28-51" src="https://github.com/supervisely-ecosystem/export-volume-project/assets/57998637/418d0687-ec3a-4435-b093-e58eed3116b2">
 
 **Output project structure:**
 

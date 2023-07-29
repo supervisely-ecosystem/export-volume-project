@@ -1,6 +1,6 @@
 <div align="center" markdown>
 
-<img src="https://github.com/supervisely-ecosystem/export-volume-project/assets/57998637/c8c60985-6f81-4fe0-811a-50bdb9484200">
+<img src="https://github.com/supervisely-ecosystem/export-volume-project/releases/download/v2.2.16/var_6.jpg">
 
 # Export Volumes with 3D Annotations
 

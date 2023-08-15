@@ -3,7 +3,7 @@ import os
 import supervisely as sly
 from supervisely.api.volume.volume_api import VolumeApi
 from supervisely.io.json import dump_json_file, load_json_file
-from supervisely.project.volume_project import download_volume_project, upload_volume_project
+from supervisely.project.volume_project import download_volume_project
 from supervisely.video_annotation.key_id_map import KeyIdMap
 
 import functions as f

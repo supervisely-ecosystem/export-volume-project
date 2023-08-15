@@ -58,8 +58,10 @@ def convert_all(dir_path, project_meta, key_id_map):
                             masks.append(sp_figure.geometry.data)
                     if len(masks) > 1:
                         curr_obj_mask = draw_masks.merge_masks(masks)
-                    else:
+                    if len(masks) == 1:
                         curr_obj_mask = masks[0]
+                    if len(masks) == 0:
+                        continue
 
                 elif v_object.obj_class._geometry_type == AnyGeometry:
                     volume_object_key = key_id_map.get_object_id(v_object._key)

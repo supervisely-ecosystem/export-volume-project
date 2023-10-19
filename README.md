@@ -31,7 +31,7 @@ Application key points:
 - Export Instance segmentation as 3D masks for every object in `.nrrd` format
 - Instance segmentation masks are duplicated with human-readable file names for convenience
 - Export Semantic segmentation as a single mask for all objects in `.nrrd` format
-- Semantic segmentation generates `class2idx.json` mapping, e.g `{"lung": 1, "brain": 2}` 
+- Semantic segmentation generates `class2idx.json` mapping, e.g. `{"lung": 1, "brain": 2}` 
 
 
 <div>
@@ -72,7 +72,7 @@ Application key points:
 
 2. The resulting archive will be available for download by the link at the `Tasks` page or from `Team Files` by the following path:
 
-- `Team Files` -> `tmp` -> `supervisely` -> `export` -> `export-supervisely-volumes-projects` -> `<task_id>_<projectId>_<projectName>.tar`
+- `Team Files` → `tmp` → `supervisely` → `export` → `export-supervisely-volumes-projects` → `<task_id>_<projectId>_<projectName>.tar`
 
 
   <img width="1250" alt="2023-06-13_18-28-51" src="https://github.com/supervisely-ecosystem/export-volume-project/assets/57998637/418d0687-ec3a-4435-b093-e58eed3116b2">

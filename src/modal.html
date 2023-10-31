@@ -1,25 +1,32 @@
 <div>
-    <div class="mt10">
-        <el-checkbox v-model="state.downloadAnnotations" disabled>Download annotations (.json, .stl)</el-checkbox>
-    </div>
-    <div class="mt10">
-        <el-checkbox v-model="state.downloadVolumes"
-                     @change="state.convertSurfaceToMask = !state.downloadVolumes ? false : state.convertSurfaceToMask">Download volume data (.nrrd)
-        </el-checkbox>
-    </div>
-    <div class="mt10">
-        <el-checkbox v-model="state.convertSurfaceToMask" :disabled="!state.downloadVolumes">Convert closed mesh
-            surfaces (.stl) to 3d masks (.nrrd) and save both files
-        </el-checkbox>
-    </div>
-    <div class="mt10">
-        <el-checkbox v-model="state.saveInstanceSegmentationMasks" :disabled="!state.downloadVolumes">Save masks for
-            every object (.nrrd)
-        </el-checkbox>
-    </div>
-    <div class="mt10">
-        <el-checkbox v-model="state.saveSemanticSegmentationMasks" :disabled="!state.downloadVolumes">Save all objects as
-            single mask (.nrrd)
-        </el-checkbox>
-    </div>
+  <div class="mt10">
+    <el-checkbox v-model="state.downloadAnnotations" disabled
+      >Download annotations (.json, .nrrd)</el-checkbox
+    >
+  </div>
+  <div class="mt10">
+    <el-checkbox v-model="state.downloadVolumes"
+      >Download volume data (.nrrd)
+    </el-checkbox>
+  </div>
+  <div class="mt10">
+    <el-checkbox
+      v-model="state.saveInstanceSegmentationMasks"
+      :disabled="!state.downloadVolumes"
+      >Additionally, save each object in Mask3D format (.nrrd)
+    </el-checkbox>
+  </div>
+  <div class="mt10">
+    <el-checkbox
+      v-model="state.saveSemanticSegmentationMasks"
+      :disabled="!state.downloadVolumes"
+      >Additionally, save all objects as one in Mask3D format (.nrrd)
+    </el-checkbox>
+  </div>
+  <div class="mt10">
+    💡 All closed mesh surface (.stl) will be converted to Mask3D (.nrrd)
+    automatically. STL files will be saved in the project interpolation folder,
+    but cannot be re-imported as closed mesh surfaces due to format
+    obsolescence.
+  </div>
 </div>

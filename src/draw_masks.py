@@ -1,66 +1,29 @@
-import os
-
 import numpy as np
 import supervisely as sly
 
 import functions as f
+import os
+
+import nrrd
+import numpy as np
+import supervisely as sly
+import copy
+from uuid import UUID
+from supervisely.io.fs import get_file_name_with_ext
+from supervisely.geometry.mask_3d import Mask3D
+from supervisely.geometry.any_geometry import AnyGeometry
+
+import functions as f
 import globals as g
-import stl_to_nrrd
-
-stl_extension = ".stl"
-nrrd_extension = ".nrrd"
-
-
-def segment_interpolation(
-    nrrd_header,
-    volume_annotation,
-    volume_object,
-    key_id_map,
-    mask,
-    vol_seg_mask_shape,
-    nrrd_matrix,
-    stl_dir,
-    mask_dir,
-):
-    volume_object_key = key_id_map.get_object_id(volume_object._key)
-    for sp_figure in volume_annotation.spatial_figures:
-        figure_vobj_key = key_id_map.get_object_id(sp_figure.volume_object._key)
-        if figure_vobj_key != volume_object_key:
-            continue
-        stl_path = os.path.join(stl_dir, f"{sp_figure._key.hex}.stl")
-        interpolation_mask = stl_to_nrrd.convert_stl_to_nrrd(
-            vol_seg_mask_shape, nrrd_matrix, stl_path
-        )
-        nrrd_file_name = os.path.basename(stl_dir)
-        output_save_path = os.path.join(mask_dir, nrrd_file_name, f"{sp_figure._key.hex}.nrrd")
-        if g.convert_surface_to_mask:
-            f.save_nrrd_mask(nrrd_header, interpolation_mask.astype(np.short), output_save_path)
-        mask = np.where(interpolation_mask != 0, interpolation_mask, mask)
-    return mask
 
 
 def segment_object(
-    nrrd_header,
-    nrrd_matrix,
     vol_seg_mask_shape,
-    stl_dir,
-    mask_dir,
     volume_annotation,
     volume_object,
     key_id_map,
 ):
     mask = np.zeros(vol_seg_mask_shape).astype(np.bool)
-    mask = segment_interpolation(
-        nrrd_header,
-        volume_annotation,
-        volume_object,
-        key_id_map,
-        mask,
-        vol_seg_mask_shape,
-        nrrd_matrix,
-        stl_dir,
-        mask_dir,
-    )
     mask_2d = segment_2d(volume_annotation, volume_object, key_id_map, vol_seg_mask_shape)
     mask = np.where(mask_2d != 0, mask_2d, mask)
     return mask
@@ -150,3 +113,127 @@ def merge_masks(masks):
         mask_add = masks.pop(0)
         mask = np.where(mask_add != 0, mask_add, mask)
     return mask
+
+
+def get_sp_figure_mask(
+    volume_object_key: UUID,
+    volume_annotation_cp: sly.VolumeAnnotation,
+    mask_dir: str,
+    nrrd_file_name: str,
+):
+    masks = []
+    for sp_figure in volume_annotation_cp.spatial_figures:
+        if sp_figure.volume_object.key() == volume_object_key:
+            try:
+                mask3d_path = os.path.join(mask_dir, nrrd_file_name, sp_figure.key().hex + ".nrrd")
+                loaded_mask = Mask3D.create_from_file(mask3d_path)
+                masks.append(loaded_mask.data)
+            except:
+                masks.append(sp_figure.geometry.data)
+    return masks
+
+
+def convert_all(dir_path, project_meta, key_id_map: sly.KeyIdMap):
+    datasets_paths = [
+        os.path.join(dir_path, ds)
+        for ds in os.listdir(dir_path)
+        if os.path.isdir(os.path.join(dir_path, ds))
+    ]
+    for dataset_path in datasets_paths:
+        volumes_dir = os.path.join(dataset_path, "volume")
+        ann_dir = os.path.join(dataset_path, "ann")
+        mask_dir = os.path.join(dataset_path, "mask")
+
+        nrrd_paths = [
+            os.path.join(volumes_dir, nrrd_file)
+            for nrrd_file in os.listdir(volumes_dir)
+            if os.path.isfile(os.path.join(volumes_dir, nrrd_file))
+        ]
+        for nrrd_path in nrrd_paths:
+            nrrd_file_name = get_file_name_with_ext(nrrd_path)
+            nrrd_header = nrrd.read_header(nrrd_path)
+
+            volume_annotation = f.get_volume_ann_from_path(project_meta, ann_dir, nrrd_file_name)
+
+            vol_seg_mask = None
+            if g.save_semantic_segmentation:
+                vol_seg_mask = np.zeros(nrrd_header["sizes"]).astype(np.short)
+            for v_object in volume_annotation.objects:
+                output_file_name = f"{v_object.key().hex}.nrrd"
+                output_save_path = os.path.join(mask_dir, nrrd_file_name, output_file_name)
+
+                v_object_id = g.class2idx[v_object.obj_class.name]
+
+                save_nrrd_status = True  # if need to save as Mask3D in NRRD
+
+                if v_object.obj_class.geometry_type == Mask3D:
+                    save_nrrd_status = False  # already have this file in mask dir
+                    masks = get_sp_figure_mask(
+                        v_object.key(),
+                        volume_annotation,
+                        mask_dir,
+                        nrrd_file_name,
+                    )
+                    if len(masks) > 1:
+                        curr_obj_mask = merge_masks(masks)
+                    if len(masks) == 1:
+                        curr_obj_mask = masks[0]
+                    if len(masks) == 0:
+                        continue
+
+                elif v_object.obj_class.geometry_type == AnyGeometry:
+                    volume_annotation_cp = copy.deepcopy(volume_annotation)
+                    masks = get_sp_figure_mask(
+                        v_object.key(),
+                        volume_annotation_cp,
+                        mask_dir,
+                        nrrd_file_name,
+                    )
+                    if len(masks) > 1:
+                        mask3d_obj_mask = merge_masks(masks)
+                    else:
+                        mask3d_obj_mask = masks[0]
+
+                    volume_annotation_cp.spatial_figures.clear()
+
+                    other_obj_mask = segment_object(
+                        nrrd_header["sizes"],
+                        volume_annotation_cp,
+                        v_object,
+                        key_id_map,
+                    )
+
+                    curr_obj_mask = merge_masks([mask3d_obj_mask, other_obj_mask])
+
+                else:
+                    curr_obj_mask = segment_object(
+                        nrrd_header["sizes"],
+                        volume_annotation,
+                        v_object,
+                        key_id_map,
+                    )
+
+                if g.save_instance_segmentation:
+                    if save_nrrd_status is True:
+                        f.save_nrrd_mask(
+                            nrrd_header, curr_obj_mask.astype(np.short), output_save_path
+                        )
+                    v_object_name = v_object.obj_class.name
+                    f.save_nrrd_mask_readable_name(
+                        nrrd_header, curr_obj_mask.astype(np.short), output_save_path, v_object_name
+                    )
+                else:
+                    if save_nrrd_status is True:
+                        f.save_nrrd_mask(
+                            nrrd_header,
+                            np.zeros(nrrd_header["sizes"]).astype(np.short),
+                            output_save_path,
+                        )
+                if vol_seg_mask is not None:
+                    curr_obj_mask = curr_obj_mask.astype(np.short) * v_object_id
+                    vol_seg_mask = np.where(curr_obj_mask != 0, curr_obj_mask, vol_seg_mask)
+
+            if vol_seg_mask is not None:
+                output_file_name = "semantic_segmentation.nrrd"
+                output_save_path = os.path.join(mask_dir, nrrd_file_name, output_file_name)
+                f.save_nrrd_mask(nrrd_header, vol_seg_mask, output_save_path)

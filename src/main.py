@@ -1,6 +1,8 @@
 import os
 
 import supervisely as sly
+
+from draw_masks import convert_all
 from supervisely.api.volume.volume_api import VolumeApi
 from supervisely.io.json import dump_json_file, load_json_file
 from supervisely.project.volume_project import download_volume_project
@@ -8,7 +10,6 @@ from supervisely.video_annotation.key_id_map import KeyIdMap
 
 import functions as f
 import globals as g
-import stl_to_nrrd
 
 
 @g.my_app.callback("download")
@@ -46,12 +47,11 @@ def download(api: sly.Api, task_id, context, state, app_logger):
 
     if g.download_volumes and any(
         [
-            g.convert_surface_to_mask,
             g.save_instance_segmentation,
             g.save_semantic_segmentation,
         ]
     ):
-        stl_to_nrrd.convert_all(download_dir, project_meta, key_id_map)
+        convert_all(download_dir, project_meta, key_id_map)
 
     full_archive_name = str(project.id) + "_" + project.name + ".tar"
     result_archive = os.path.join(g.my_app.data_dir, full_archive_name)

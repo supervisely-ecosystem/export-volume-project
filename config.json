@@ -9,7 +9,6 @@
   "modal_template": "src/modal.html",
   "modal_template_state": {
     "downloadVolumes": true,
-    "convertSurfaceToMask": true,
     "downloadAnnotations": true,
     "saveInstanceSegmentationMasks": true,
     "saveSemanticSegmentationMasks": true

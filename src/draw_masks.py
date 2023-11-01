@@ -166,7 +166,9 @@ def convert_all(dir_path, project_meta, key_id_map: sly.KeyIdMap):
 
                 v_object_id = g.class2idx[v_object.obj_class.name]
 
-                save_nrrd_status = True  # if need to save as Mask3D in NRRD
+                save_nrrd_status = (
+                    True  # to prevent NRRD duplicates from being stored for Mask3D objects
+                )
 
                 if v_object.obj_class.geometry_type == Mask3D:
                     save_nrrd_status = False  # already have this file in mask dir
@@ -224,13 +226,8 @@ def convert_all(dir_path, project_meta, key_id_map: sly.KeyIdMap):
                     f.save_nrrd_mask_readable_name(
                         nrrd_header, curr_obj_mask.astype(np.short), output_save_path, v_object_name
                     )
-                else:
-                    if save_nrrd_status is True:
-                        f.save_nrrd_mask(
-                            nrrd_header,
-                            np.zeros(nrrd_header["sizes"]).astype(np.short),
-                            output_save_path,
-                        )
+
+                # change grayscale values for each object to have visual differences on the common mask
                 if vol_seg_mask is not None:
                     curr_obj_mask = curr_obj_mask.astype(np.short) * v_object_id
                     vol_seg_mask = np.where(curr_obj_mask != 0, curr_obj_mask, vol_seg_mask)

@@ -9,7 +9,7 @@ import numpy as np
 import supervisely as sly
 import copy
 from uuid import UUID
-from supervisely.io.fs import get_file_name_with_ext
+from supervisely.io.fs import get_file_name_with_ext, file_exists
 from supervisely.geometry.mask_3d import Mask3D
 from supervisely.geometry.any_geometry import AnyGeometry
 
@@ -124,11 +124,13 @@ def get_sp_figure_mask(
     masks = []
     for sp_figure in volume_annotation_cp.spatial_figures:
         if sp_figure.volume_object.key() == volume_object_key:
-            try:
-                mask3d_path = os.path.join(mask_dir, nrrd_file_name, sp_figure.key().hex + ".nrrd")
-                loaded_mask = Mask3D.create_from_file(mask3d_path)
-                masks.append(loaded_mask.data)
-            except:
+            mask3d_path = os.path.join(mask_dir, nrrd_file_name, sp_figure.key().hex + ".nrrd")
+            if file_exists(mask3d_path):
+                # for the new storage format
+                temp_mask = Mask3D.create_from_file(mask3d_path)
+                masks.append(temp_mask.data)
+            else:
+                # for the old storage format
                 masks.append(sp_figure.geometry.data)
     return masks
 

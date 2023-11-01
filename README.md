@@ -63,7 +63,7 @@ Version `v2.3.0`
 
    <img data-key="sly-module-link" data-module-slug="supervisely-ecosystem/export-volume-project" src="https://i.imgur.com/DnAVFlZ.png" width="450px" style='padding-bottom: 20px'/>
 
-2. Run the app from the context menu of **Volume Project** or **Volumes Dataset** -> `Download via app` -> `Export Supervisely volume project in Supervisely format`
+2. Run the app from the context menu of **Volume Project** or **Volumes Dataset** → `Download via app` → `Export Supervisely volume project in Supervisely format`
 
    <img width="1250" alt="context menu" src="https://github.com/supervisely-ecosystem/export-volume-project/assets/57998637/563084d9-e8d5-485f-a90e-dcc5eb921175">
 

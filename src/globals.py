@@ -38,20 +38,12 @@ assert DATASET_ID or PROJECT_ID
 
 
 download_volumes = bool(strtobool(os.getenv("modal.state.downloadVolumes")))
-download_annotations = (
-    True
-)  # bool(strtobool(os.getenv('modal.state.downloadAnnotations')))
-convert_surface_to_mask = bool(strtobool(os.getenv("modal.state.convertSurfaceToMask")))
-save_instance_segmentation = bool(
-    strtobool(os.getenv("modal.state.saveInstanceSegmentationMasks"))
-)
-save_semantic_segmentation = bool(
-    strtobool(os.getenv("modal.state.saveSemanticSegmentationMasks"))
-)
+download_annotations = True  # bool(strtobool(os.getenv('modal.state.downloadAnnotations')))
+save_instance_segmentation = bool(strtobool(os.getenv("modal.state.saveInstanceSegmentationMasks")))
+save_semantic_segmentation = bool(strtobool(os.getenv("modal.state.saveSemanticSegmentationMasks")))
 
 class2idx = {}
 
 if not download_volumes:
-    convert_surface_to_mask = False
     save_instance_segmentation = False
     save_semantic_segmentation = False

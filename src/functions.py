@@ -7,11 +7,8 @@ from supervisely.io.json import load_json_file
 from supervisely.volume_annotation.volume_annotation import VolumeAnnotation
 
 
-def create_class2idx_map(project_meta):
-    return {
-        obj_class.name: idx + 1
-        for idx, obj_class in enumerate(project_meta.obj_classes)
-    }
+def create_class2idx_map(project_meta: sly.ProjectMeta):
+    return {obj_class.name: idx + 1 for idx, obj_class in enumerate(project_meta.obj_classes)}
 
 
 def get_volume_ann_from_path(project_meta, ann_dir, nrrd_file_name):
@@ -20,7 +17,7 @@ def get_volume_ann_from_path(project_meta, ann_dir, nrrd_file_name):
     return VolumeAnnotation.from_json(ann_json, project_meta)
 
 
-def convert_to_bitmap(figure):
+def convert_to_bitmap(figure: sly.VolumeFigure):
     obj_class = figure.volume_object.obj_class
     new_obj_class = obj_class.clone(geometry_type=sly.Bitmap)
     volume_object = figure.volume_object

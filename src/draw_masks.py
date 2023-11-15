@@ -127,8 +127,8 @@ def get_sp_figure_mask(
             mask3d_path = os.path.join(mask_dir, nrrd_file_name, sp_figure.key().hex + ".nrrd")
             if file_exists(mask3d_path):
                 # for the new storage format
-                temp_mask = Mask3D.create_from_file(mask3d_path)
-                masks.append(temp_mask.data)
+                mask_data, _ = nrrd.read(mask3d_path)
+                masks.append(mask_data)
             else:
                 # for the old storage format
                 masks.append(sp_figure.geometry.data)

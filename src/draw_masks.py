@@ -127,8 +127,11 @@ def get_sp_figure_mask(
             mask3d_path = os.path.join(mask_dir, nrrd_file_name, sp_figure.key().hex + ".nrrd")
             if file_exists(mask3d_path):
                 # for the new storage format
-                temp_mask = Mask3D.create_from_file(mask3d_path)
-                masks.append(temp_mask.data)
+                mask_data, _ = nrrd.read(mask3d_path)
+                # to reset greyscale values
+                mask_data = (mask_data != 0).astype(bool)
+                mask_data = mask_data.astype(np.int16)
+                masks.append(mask_data)
             else:
                 # for the old storage format
                 masks.append(sp_figure.geometry.data)
@@ -195,8 +198,10 @@ def convert_all(dir_path, project_meta, key_id_map: sly.KeyIdMap):
                     )
                     if len(masks) > 1:
                         mask3d_obj_mask = merge_masks(masks)
-                    else:
+                    if len(masks) == 1:
                         mask3d_obj_mask = masks[0]
+                    if len(masks) == 0:
+                        mask3d_obj_mask = 0
 
                     volume_annotation_cp.spatial_figures.clear()
 
@@ -217,19 +222,19 @@ def convert_all(dir_path, project_meta, key_id_map: sly.KeyIdMap):
                         key_id_map,
                     )
 
+                # change grayscale values for each object to have visual differences on the common mask
+                # for backward compatibility in Import Volumes with Masks
+                curr_obj_mask = curr_obj_mask.astype(np.short) * v_object_id
+
                 if g.save_instance_segmentation:
                     if save_nrrd_status is True:
-                        f.save_nrrd_mask(
-                            nrrd_header, curr_obj_mask.astype(np.short), output_save_path
+                        f.save_nrrd_mask(nrrd_header, curr_obj_mask, output_save_path)
+                        v_object_name = v_object.obj_class.name
+                        f.save_nrrd_mask_readable_name(
+                            nrrd_header, curr_obj_mask, output_save_path, v_object_name
                         )
-                    v_object_name = v_object.obj_class.name
-                    f.save_nrrd_mask_readable_name(
-                        nrrd_header, curr_obj_mask.astype(np.short), output_save_path, v_object_name
-                    )
 
-                # change grayscale values for each object to have visual differences on the common mask
                 if vol_seg_mask is not None:
-                    curr_obj_mask = curr_obj_mask.astype(np.short) * v_object_id
                     vol_seg_mask = np.where(curr_obj_mask != 0, curr_obj_mask, vol_seg_mask)
 
             if vol_seg_mask is not None:

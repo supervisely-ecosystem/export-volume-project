@@ -128,6 +128,9 @@ def get_sp_figure_mask(
             if file_exists(mask3d_path):
                 # for the new storage format
                 mask_data, _ = nrrd.read(mask3d_path)
+                # to reset greyscale values
+                mask_data = (mask_data != 0).astype(bool)
+                mask_data = mask_data.astype(np.int16)
                 masks.append(mask_data)
             else:
                 # for the old storage format

@@ -140,4 +140,4 @@ Representation in 3D Slicer:
 3.  Load this files into 3D Slicer
 4.  Then select Volume Rendering and enable visibility for each desired volume. You can also customize presets in the Display menu to adjust its visibility.
 
-https://github.com/supervisely-ecosystem/export-volume-project/assets/57998637/106ce8d6-db50-4426-a008-6e391237713a
+<video width="100%" src="https://github.com/supervisely-ecosystem/export-volume-project/assets/57998637/106ce8d6-db50-4426-a008-6e391237713a" controls="controls"></video>

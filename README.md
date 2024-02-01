@@ -94,7 +94,7 @@ Version `v2.3.1`
      │   ├──📂ann
      │   │   ├──📜CTChest.nrrd.json
      │   │   └──📜...
-     │   ├──📂interpolation
+     │   ├──📂interpolation (optional)
      │   │   └──📂CTChest.nrrd
      │   │       ├──📜9aab4ddf1ddb4af1836006f0f1a3a694.stl
      │   │       └──📜...     
@@ -113,3 +113,31 @@ Version `v2.3.1`
      ├──📜key_id_map.json
      └──📜meta.json
 ```
+
+## How to import annotations into 3D Slicer
+All 3D annotations exported with this application are 3D models in NRRD format and have the same dimensions as its volume.
+
+<img width="1250" alt="3dmasks_explanation" src="https://github.com/supervisely-ecosystem/dicom-spatial-figures/assets/57998637/e420a798-d376-40fc-b118-44c62615aef2"/>
+
+We can also export objects with any shape as voxelized annotations using option `Additionally, save each object in Mask3D format` (instance segmentation) in the modal window of this application or `Additionally, save all objects as one in Mask3D format` (semantic segmentation)
+
+Annotations before the exporting with `mask` and `polygon` shapes:
+
+<img width="1250" alt="other_shapes" src="https://github.com/supervisely-ecosystem/export-volume-project/releases/download/v2.2.16/mask_polygon.png"/>
+
+
+The same annotations after exporting with the option mentioned before:
+
+<img width="1250" alt="3dmask_shapes" src="https://github.com/supervisely-ecosystem/export-volume-project/releases/download/v2.2.16/mask3d.png"/>
+
+Representation in 3D Slicer:
+
+<img width="400" alt="3dmask_shapes_slicer" src="https://github.com/supervisely-ecosystem/export-volume-project/releases/download/v2.2.16/slicer_repr.png"/>
+
+### Import steps:
+1. Take volume at path `📂project_dir → 📂dataset_1 → 📂volume → 📜CTChest.nrrd`
+2. Take annotations at path `📂project_dir → 📂dataset_1 → 📂mask → 📂CTChest.nrrd → 📜86a6bd27d358440fb97783f5fc7fec57.nrrd` (for example)
+3.  Load this files into 3D Slicer
+4.  Then select Volume Rendering and enable visibility for each desired volume. You can also customize presets in the Display menu to adjust its visibility.
+
+<img src=https://github.com/supervisely-ecosystem/export-volume-project/releases/download/v2.2.16/e023d295-fb0e-4b0c-9bdb-47a7b61ebc8d.gif/>

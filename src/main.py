@@ -10,6 +10,7 @@ from supervisely.video_annotation.key_id_map import KeyIdMap
 
 import functions as f
 import globals as g
+import workflow as w
 
 
 @g.my_app.callback("download")
@@ -17,11 +18,15 @@ import globals as g
 def download(api: sly.Api, task_id, context, state, app_logger):
     setattr(api, "volume", VolumeApi(api))  # custom extension for api instance
 
-    if g.PROJECT_ID:
-        project = api.project.get_info_by_id(g.PROJECT_ID)
-    else:
+    if g.DATASET_ID:
         dataset = api.dataset.get_info_by_id(g.DATASET_ID)
         project = api.project.get_info_by_id(dataset.project_id)
+        w.workflow_input(api, dataset.id, "dataset")
+    elif g.PROJECT_ID:
+        project = api.project.get_info_by_id(g.PROJECT_ID)
+        w.workflow_input(api, project.id, "project")
+    else:
+        raise ValueError("PROJECT_ID or DATASET_ID should be provided")
 
     download_dir = os.path.join(
         g.my_app.data_dir, f"{project.id}_{project.name}/{project.id}_{project.name}"
@@ -88,6 +93,7 @@ def download(api: sly.Api, task_id, context, state, app_logger):
     api.task.set_output_archive(
         task_id, file_info.id, full_archive_name, file_url=file_info.storage_path
     )
+    w.workflow_output(api, file_info)
     g.my_app.stop()
 
 

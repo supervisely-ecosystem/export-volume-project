@@ -11,11 +11,11 @@
   <a href="#how-to-use">How To Use</a>
 </p>
 
-[![](https://img.shields.io/badge/supervisely-ecosystem-brightgreen)](https://ecosystem.supervise.ly/apps/export-volume-project)
-[![](https://img.shields.io/badge/slack-chat-green.svg?logo=slack)](https://supervise.ly/slack)
+[![](https://img.shields.io/badge/supervisely-ecosystem-brightgreen)](https://ecosystem.supervisely.com/apps/export-volume-project)
+[![](https://img.shields.io/badge/slack-chat-green.svg?logo=slack)](https://supervisely.com/slack)
 ![GitHub release (latest SemVer)](https://img.shields.io/github/v/release/supervisely-ecosystem/export-volume-project)
-[![views](https://app.supervise.ly/img/badges/views/supervisely-ecosystem/export-volume-project.png)](https://supervise.ly)
-[![runs](https://app.supervise.ly/img/badges/runs/supervisely-ecosystem/export-volume-project.png)](https://supervise.ly)
+[![views](https://app.supervisely.com/img/badges/views/supervisely-ecosystem/export-volume-project.png)](https://supervisely.com)
+[![runs](https://app.supervisely.com/img/badges/runs/supervisely-ecosystem/export-volume-project.png)](https://supervisely.com)
 
 </div>
 
@@ -23,7 +23,7 @@
 
 🔥 All 3D data is exported as `.nrrd` for **compatibility with other popular medical viewers**, so that once downloaded, the volume and masks can be opened in specialized software like [MITK](http://www.mitk.org/) and [3D Slicer](https://www.slicer.org/) without any further action!
 
-You can export as a whole Supervisely project or only as a dataset. To learn more about the format and its structure read [documentation](https://docs.supervise.ly/data-organization/00_ann_format_navi/08_supervisely_format_volume).
+You can export as a whole Supervisely project or only as a dataset. To learn more about the format and its structure read [documentation](https://docs.supervisely.com/data-organization/00_ann_format_navi/08_supervisely_format_volume).
 
 Application key points:
 - Export annotations in `.json` and `.nrrd` formats
@@ -59,7 +59,7 @@ Version `v2.3.1`
 
 # How To Run
 
-1. Add [Export volumes project in Supervisely format](https://ecosystem.supervise.ly/apps/export-volume-project)
+1. Add [Export volumes project in Supervisely format](https://ecosystem.supervisely.com/apps/export-volume-project)
 
    <img data-key="sly-module-link" data-module-slug="supervisely-ecosystem/export-volume-project" src="https://i.imgur.com/DnAVFlZ.png" width="450px" style='padding-bottom: 20px'/>
 

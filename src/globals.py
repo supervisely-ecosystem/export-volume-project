@@ -6,6 +6,7 @@ from pathlib import Path
 import supervisely as sly
 from dotenv import load_dotenv
 from supervisely.app.v1.app_service import AppService
+from supervisely.collection.str_enum import StrEnum
 
 root_source_dir = str(Path(sys.argv[0]).parents[1])
 print(f"App source directory: {root_source_dir}")
@@ -36,7 +37,8 @@ except KeyError:
 
 assert DATASET_ID or PROJECT_ID
 
-
+format = os.getenv("modal.state.format", "sly")
+segmentation_type = None if format == "sly" else os.getenv("modal.state.segmentationType", "semantic")
 download_volumes = bool(strtobool(os.getenv("modal.state.downloadVolumes")))
 download_annotations = True  # bool(strtobool(os.getenv('modal.state.downloadAnnotations')))
 save_instance_segmentation = bool(strtobool(os.getenv("modal.state.saveInstanceSegmentationMasks")))
@@ -47,3 +49,16 @@ class2idx = {}
 if not download_volumes:
     save_instance_segmentation = False
     save_semantic_segmentation = False
+
+class PlanePrefix(str, StrEnum):
+    """Prefix for plane names."""
+
+    CORONAL = "cor"
+    SAGITTAL = "sag"
+    AXIAL = "axl"
+
+def get_project_id() -> int:
+    # for cases when only dataset id is provided but project id is needed intended to not break the code
+    if PROJECT_ID:
+        return PROJECT_ID
+    return api.dataset.get_info_by_id(DATASET_ID).project_id

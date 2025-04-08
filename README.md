@@ -53,6 +53,9 @@ Application key points:
 
 ## What's new 
 
+Version `v2.4.1`
+  - Added option to export to NIfTI format for both instance and semantic segmentation types. If input data was originally imported in NIfTI format **from cloud storage**, original volume files will be exported instead of converting existing files. For more details on output structure, check [NIfTI converter documentation](https://docs.supervisely.com/import-and-export/import/supported-annotation-formats/volumes/nifti).
+
 Version `v2.3.1`
  - 🏷️ Support for a new format for storing Mask3D objects geometry as `.nrrd` files in the `mask` directory. To learn more read [this article](https://docs.supervisely.com/data-organization/00_ann_format_navi/08_supervisely_format_volume).
  - ℹ️ Automatic conversion of `.stl` closed mesh surface interpolations to Mask3D when exporting. STL files will be saved in the project interpolation folder, but cannot be re-imported in future as closed mesh surfaces due to format obsolescence.

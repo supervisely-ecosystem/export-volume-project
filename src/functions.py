@@ -90,7 +90,7 @@ def convert_nrrd_to_nifti(nrrd_path: str, nifti_path: str) -> None:
     sitk.WriteImage(img, nifti_path)
 
 
-def convert_volume_project(local_project_dir: str, export_format: str, segmentation_type: str) -> str:
+def convert_volume_project(local_project_dir: str, segmentation_type: str) -> str:
     """
     Convert a volume project to NIfTI format.
 
@@ -127,7 +127,7 @@ def convert_volume_project(local_project_dir: str, export_format: str, segmentat
     project_id = g.get_project_id()
 
     project_fs = sly.VolumeProject(local_project_dir, mode=sly.OpenMode.READ)
-    new_suffix = "_nifti" if export_format == "nifti" else "_nrrd"
+    new_suffix = "_nifti"
     new_name = f"{project_fs.name}{new_suffix}"
     new_project_dir = Path(local_project_dir).parent / new_name
     new_project_dir.mkdir(parents=True, exist_ok=True)
@@ -159,7 +159,7 @@ def convert_volume_project(local_project_dir: str, export_format: str, segmentat
             ann = sly.VolumeAnnotation.from_json(ann_json, meta)
 
             short_name = name if not name.endswith(".nrrd") else name[:-5]
-            ext = ".nii.gz" if export_format == "nifti" else ".nrrd"
+            ext = ".nii.gz"
             res_name = short_name + ext
             res_path = ds_path / res_name
 
@@ -167,9 +167,7 @@ def convert_volume_project(local_project_dir: str, export_format: str, segmentat
             use_remote_link = volume_info.meta is not None and "remote_path" in volume_info.meta
             if use_remote_link:
                 remote_path = volume_info.meta["remote_path"]
-                if export_format == "nifti" and Path(remote_path).suffix not in [".nii", ".gz"]:
-                    use_remote_link = False
-                if export_format == "nrrd" and Path(remote_path).suffix != ".nrrd":
+                if Path(remote_path).suffix not in [".nii", ".gz"]:
                     use_remote_link = False
             if use_remote_link:
                 sly.logger.info(f"Found remote path for {name}")
@@ -181,11 +179,8 @@ def convert_volume_project(local_project_dir: str, export_format: str, segmentat
                     res_path = Path(str(res_path)[: -len(ext)]).with_suffix(remote_ext)
                 g.api.storage.download(g.TEAM_ID, remote_path, res_path)
             else:
-                sly.logger.info(f"Converting {name} to {export_format}")
-                if export_format == "nifti":
-                    convert_nrrd_to_nifti(volume_path, res_path)
-                else:
-                    sly.fs.copy_file(volume_path, res_path)
+                sly.logger.info(f"Converting {name} to NIfTI")
+                convert_nrrd_to_nifti(volume_path, res_path)
 
             if len(ann.objects) > 0:
                 volume_np, volume_meta = sly.volume.read_nrrd_serie_volume_np(volume_path)
@@ -235,22 +230,17 @@ def convert_volume_project(local_project_dir: str, export_format: str, segmentat
                 def _save_ann(ent_to_npy, ext, volume_meta, affine=None):
                     for entity_name, npy in ent_to_npy.items():
                         label_path = _get_label_path(entity_name, ext)
-                        if export_format == "nifti":
-                            label_nifti = nib.Nifti1Image(npy, affine)
-                            nib.save(label_nifti, label_path)
-                        else:
-                            volume_bytes = sly.volume.encode(volume_np=npy, volume_meta=volume_meta)
-                            with open(label_path, "wb") as file:
-                                file.write(volume_bytes)
+                        label_nifti = nib.Nifti1Image(npy, affine)
+                        nib.save(label_nifti, label_path)
 
                 affine = None
-                if export_format == "nifti":
-                    nifti = nib.load(res_path)
-                    reordered_to_ras_nifti = nib.as_closest_canonical(nifti)
-                    affine = reordered_to_ras_nifti.affine
+                nifti = nib.load(res_path)
+                reordered_to_ras_nifti = nib.as_closest_canonical(nifti)
+                affine = reordered_to_ras_nifti.affine
 
                 _save_ann(cls_to_npy, ext, volume_meta, affine)
 
-    sly.logger.info(f"Converted project to {export_format}")
+    sly.logger.info(f"Converted project to NIfTI")
 
-    return str(new_project_dir)
+    sly.fs.silent_remove(local_project_dir)
+    os.rename(str(new_project_dir), local_project_dir)

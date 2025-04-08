@@ -59,7 +59,7 @@ def download(api: sly.Api, task_id, context, state, app_logger):
         ):
             convert_all(download_dir, project_meta, key_id_map)
     elif g.format == "nifti":
-        download_dir = f.convert_volume_project(download_dir, g.format, g.segmentation_type)
+        f.convert_volume_project(download_dir, g.segmentation_type)
     else:
         raise ValueError(f"Unsupported format: {g.format}")
 

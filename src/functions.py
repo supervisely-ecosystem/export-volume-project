@@ -242,5 +242,5 @@ def convert_volume_project(local_project_dir: str, segmentation_type: str) -> st
 
     sly.logger.info(f"Converted project to NIfTI")
 
-    sly.fs.silent_remove(local_project_dir)
+    sly.fs.remove_dir(local_project_dir)
     os.rename(str(new_project_dir), local_project_dir)

@@ -1,34 +1,59 @@
 <div>
-  <div class="mt10">
-    <el-checkbox v-model="state.downloadAnnotations" disabled
-      >Download annotations (.json, .nrrd)</el-checkbox
-    >
+  <sly-field title="Export format">
+    <el-select v-model="state.format" placeholder="Select format">
+        <el-option key="sly" label="Supervisely (NRRD + JSON)" value="sly"></el-option>
+        <el-option key="nifti" label="NIFTI" value="nifti"></el-option>
+    </el-select>
+  </sly-field>
+  <div v-if="state.format === 'sly'">
+      <div class="mt10">
+        <el-checkbox v-model="state.downloadAnnotations" disabled
+          >Download annotations (.json, .nrrd)</el-checkbox
+      >
+    </div>
+    <div class="mt10">
+      <el-checkbox v-model="state.downloadVolumes"
+        >Download volume data (.nrrd)
+      </el-checkbox>
+    </div>
+    <div class="mt10">
+      <el-checkbox
+        v-model="state.saveInstanceSegmentationMasks"
+        :disabled="!state.downloadVolumes"
+        >Additionally, save each object in Mask3D format (.nrrd)
+      </el-checkbox>
+    </div>
+    <div class="mt10">
+      <el-checkbox
+        v-model="state.saveSemanticSegmentationMasks"
+        :disabled="!state.downloadVolumes"
+        >Additionally, save all objects as one in Mask3D format (.nrrd)
+      </el-checkbox>
+    </div>
+    <div class="mt10">
+      <br />
+      &#9432; All closed mesh surface (.stl) will be converted to Mask3D (.nrrd)
+      automatically. STL files will be saved in the project interpolation folder,
+      but cannot be re-imported as closed mesh surfaces due to format
+      obsolescence.
+      <br />
+    </div>
   </div>
-  <div class="mt10">
-    <el-checkbox v-model="state.downloadVolumes"
-      >Download volume data (.nrrd)
-    </el-checkbox>
-  </div>
-  <div class="mt10">
-    <el-checkbox
-      v-model="state.saveInstanceSegmentationMasks"
-      :disabled="!state.downloadVolumes"
-      >Additionally, save each object in Mask3D format (.nrrd)
-    </el-checkbox>
-  </div>
-  <div class="mt10">
-    <el-checkbox
-      v-model="state.saveSemanticSegmentationMasks"
-      :disabled="!state.downloadVolumes"
-      >Additionally, save all objects as one in Mask3D format (.nrrd)
-    </el-checkbox>
-  </div>
-  <div class="mt10">
-    <br />
-    &#9432; All closed mesh surface (.stl) will be converted to Mask3D (.nrrd)
-    automatically. STL files will be saved in the project interpolation folder,
-    but cannot be re-imported as closed mesh surfaces due to format
-    obsolescence.
-    <br />
+  <div v-if="state.format === 'nifti'">
+    <sly-field title="Segmentation type" description="Select segmentation type for NIfTI export">
+      <div class="mt10">
+        <el-radio-group v-model="state.segmentationType">
+          <el-radio-button label="semantic" value="semantic"></el-radio-button>
+          <el-radio-button label="instance" value="instance"></el-radio-button>
+        </el-radio-group>
+      </div>
+      <div class="mt10">
+        <br />
+        &#9432; If volume was originally imported from NIfTI format, 
+        the original NIfTI file from the remote storage will be used 
+        for export instead of converting Supervisely volume format to NIfTI.
+        <br />
+      </div>
+    </sly-field>
   </div>
 </div>

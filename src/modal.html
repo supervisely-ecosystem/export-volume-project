@@ -40,7 +40,7 @@
     </div>
   </div>
   <div v-if="state.format === 'nifti'">
-    <sly-field title="Task type" description="Specify whether you want to export objects of class as a separate instances (instance segmentation) or as a single mask (semantic segmentation)">
+    <sly-field title="Segmentation type" description="Specify which task type to use for NIfTI export">
       <div class="mt10">
         <el-radio-group v-model="state.segmentationType">
           <el-radio-button label="semantic" value="semantic"></el-radio-button>

@@ -289,7 +289,7 @@ def write_meshes(local_project_dir: str, mesh_export_type: str) -> None:
     for ds in project_fs.datasets:
         ds: sly.VolumeDataset
         ds_path = local_project_dir / ds.name
-        mesh_dir = str(ds_path / "meshes")
+        mesh_dir = ds_path / "meshes"
         mesh_dir.mkdir(parents=True, exist_ok=True)
         for name in ds.get_items_names():
             ann_path = ds.get_ann_path(name)

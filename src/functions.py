@@ -299,7 +299,7 @@ def write_meshes(local_project_dir: str, mesh_export_type: str) -> None:
             for fig in ann.spatial_figures:
                 path = mesh_dir / f"{name}.{mesh_export_type}"
                 try:
-                    fig.write_mesh_to_file(str(path))
+                    fig.geometry.write_mesh_to_file(str(path))
                 except Exception as e:
                     sly.logger.warning(f"Failed to write mesh for figure '{fig.key()}': {str(e)}")
                     continue

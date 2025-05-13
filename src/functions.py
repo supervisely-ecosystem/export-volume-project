@@ -283,6 +283,7 @@ def write_meshes(local_project_dir: str, mesh_export_type: str) -> None:
         mesh_export_type (str): Type of mesh export (e.g., "stl").
     """
     from pathlib import Path
+    from globals import api
 
     project_fs = sly.VolumeProject(local_project_dir, mode=sly.OpenMode.READ)
     local_project_dir = Path(local_project_dir)
@@ -299,6 +300,7 @@ def write_meshes(local_project_dir: str, mesh_export_type: str) -> None:
                 f"{len(ann.spatial_figures)} spatial figures to process...",
             )
             for fig in ann.spatial_figures:
+                api.volume.figure.load_sf_geometry(fig, project_fs.key_id_map)
                 path = mesh_dir / f"{name}.{mesh_export_type}"
                 sly.logger.debug(f"Mask3D shape: {fig.geometry.data.shape}")
                 sly.logger.debug(f"Writing mesh to {path}")

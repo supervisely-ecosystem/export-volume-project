@@ -55,4 +55,15 @@
       </div>
     </sly-field>
   </div>
+    <div v-if="state.format === 'sly'" class="mt10">
+      <el-checkbox v-model="state.showMeshExportOptions">
+        Additionally export geometries as meshes
+      </el-checkbox>
+      <div v-if="state.showMeshExportOptions" class="mt10">
+        <el-radio-group v-model="state.meshExportType">
+          <el-radio-button label="stl" value="stl">STL</el-radio-button>
+          <el-radio-button label="dtl" value="dtl">DTL</el-radio-button>
+        </el-radio-group>
+      </div>
+    </div>
 </div>

@@ -73,7 +73,6 @@ def get_nonexistent_path(file_path):
     return new_fname
 
 
-
 def convert_nrrd_to_nifti(nrrd_path: str, nifti_path: str) -> None:
     """
     Convert a NRRD volume to NIfTI format.
@@ -122,7 +121,6 @@ def convert_volume_project(local_project_dir: str, segmentation_type: str) -> st
     from globals import PlanePrefix
     import numpy as np
     from pathlib import Path
-
 
     project_id = g.get_project_id()
 
@@ -274,3 +272,36 @@ def convert_volume_project(local_project_dir: str, segmentation_type: str) -> st
 
     sly.fs.remove_dir(local_project_dir)
     os.rename(str(new_project_dir), local_project_dir)
+
+
+def write_meshes(local_project_dir: str, mesh_export_type: str) -> None:
+    """
+    Write meshes to the local project directory.
+
+    Args:
+        local_project_dir (str): Path to the local project directory.
+        mesh_export_type (str): Type of mesh export (e.g., "stl").
+    """
+
+    project_fs = sly.VolumeProject(local_project_dir, mode=sly.OpenMode.READ)
+    for ds in project_fs.datasets:
+        ds: sly.VolumeDataset
+        ds_path = local_project_dir / ds.name
+        mesh_dir = ds_path / "meshes"
+        mesh_dir.mkdir(parents=True, exist_ok=True)
+        for name in ds.get_items_names():
+            ann_path = ds.get_ann_path(name)
+            ann_json = sly.json.load_json_file(ann_path)
+            ann = sly.VolumeAnnotation.from_json(ann_json, project_fs.meta)
+
+            all_figures = ann.figures.extend(ann.spatial_figures)
+            for fig in all_figures:
+                path = mesh_dir / f"{name}.{mesh_export_type}"
+                try:
+                    fig.write_mesh_to_file(path)
+                except Exception as e:
+                    sly.logger.warning(f"Failed to write mesh for figure '{fig.key()}': {str(e)}")
+                    continue
+                sly.logger.debug("Successfully wrote mesh to file", extra={"mesh_path": str(path)})
+
+    sly.logger.info(f"Meshes written to {local_project_dir}")

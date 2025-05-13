@@ -50,7 +50,7 @@ def download(api: sly.Api, task_id, context, state, app_logger):
         g.class2idx = f.create_class2idx_map(project_meta)
         class2idx_path = os.path.join(download_dir, "class2idx.json")
         dump_json_file(g.class2idx, class2idx_path)
-        
+
         if g.download_volumes and any(
             [
                 g.save_instance_segmentation,
@@ -58,6 +58,9 @@ def download(api: sly.Api, task_id, context, state, app_logger):
             ]
         ):
             convert_all(download_dir, project_meta, key_id_map)
+
+        if g.save_mesh:
+            f.write_meshes(download_dir, g.mesh_export_type)
     elif g.format == "nifti":
         f.convert_volume_project(download_dir, g.segmentation_type)
     else:

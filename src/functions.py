@@ -296,9 +296,6 @@ def write_meshes(local_project_dir: str, mesh_export_type: str) -> None:
             ann_path = ds.get_ann_path(name)
             ann_json = sly.json.load_json_file(ann_path)
             ann = sly.VolumeAnnotation.from_json(ann_json, project_fs.meta)
-            sly.logger.debug(
-                f"{len(ann.spatial_figures)} spatial figures to process...",
-            )
             for fig in ann.spatial_figures:
                 api.volume.figure.load_sf_geometry(fig, project_fs.key_id_map)
                 path = mesh_dir / f"{name}.{mesh_export_type}"

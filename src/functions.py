@@ -282,12 +282,14 @@ def write_meshes(local_project_dir: str, mesh_export_type: str) -> None:
         local_project_dir (str): Path to the local project directory.
         mesh_export_type (str): Type of mesh export (e.g., "stl").
     """
+    from pathlib import Path
 
     project_fs = sly.VolumeProject(local_project_dir, mode=sly.OpenMode.READ)
+    local_project_dir = Path(local_project_dir)
     for ds in project_fs.datasets:
         ds: sly.VolumeDataset
         ds_path = local_project_dir / ds.name
-        mesh_dir = ds_path / "meshes"
+        mesh_dir = str(ds_path / "meshes")
         mesh_dir.mkdir(parents=True, exist_ok=True)
         for name in ds.get_items_names():
             ann_path = ds.get_ann_path(name)
@@ -298,7 +300,7 @@ def write_meshes(local_project_dir: str, mesh_export_type: str) -> None:
             for fig in all_figures:
                 path = mesh_dir / f"{name}.{mesh_export_type}"
                 try:
-                    fig.write_mesh_to_file(path)
+                    fig.write_mesh_to_file(str(path))
                 except Exception as e:
                     sly.logger.warning(f"Failed to write mesh for figure '{fig.key()}': {str(e)}")
                     continue

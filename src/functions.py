@@ -300,7 +300,7 @@ def write_meshes(local_project_dir: str, mesh_export_type: str) -> None:
             )
             for fig in ann.spatial_figures:
                 path = mesh_dir / f"{name}.{mesh_export_type}"
-                sly.logger.debug(f"Mask3d shape: {fig.geometry.shape}")
+                sly.logger.debug(f"Mask3D shape: {fig.geometry.shape}")
                 sly.logger.debug(f"Writing mesh to {path}")
                 try:
                     fig.geometry.write_mesh_to_file(str(path))
@@ -309,6 +309,5 @@ def write_meshes(local_project_dir: str, mesh_export_type: str) -> None:
                         f"Failed to write mesh for figure (id: {fig.geometry.sly_id}): {str(e)}"
                     )
                     continue
-                sly.logger.debug("Successfully wrote mesh to file", extra={"mesh_path": str(path)})
 
     sly.logger.info(f"Meshes written to {local_project_dir}")

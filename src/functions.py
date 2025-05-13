@@ -303,7 +303,6 @@ def write_meshes(local_project_dir: str, mesh_export_type: str) -> None:
                 api.volume.figure.load_sf_geometry(fig, project_fs.key_id_map)
                 path = mesh_dir / f"{name}.{mesh_export_type}"
                 sly.logger.debug(f"Mask3D shape: {fig.geometry.data.shape}")
-                sly.logger.debug(f"Writing mesh to {path}")
                 try:
                     fig.geometry.write_mesh_to_file(str(path))
                 except Exception as e:

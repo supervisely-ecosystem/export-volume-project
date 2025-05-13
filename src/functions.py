@@ -295,13 +295,18 @@ def write_meshes(local_project_dir: str, mesh_export_type: str) -> None:
             ann_path = ds.get_ann_path(name)
             ann_json = sly.json.load_json_file(ann_path)
             ann = sly.VolumeAnnotation.from_json(ann_json, project_fs.meta)
-            sly.logger.debug(f"{len(ann.spatial_figures)} spatial figures to process...")
+            sly.logger.debug(
+                f"{len(ann.spatial_figures)} spatial figures to process...",
+            )
             for fig in ann.spatial_figures:
                 path = mesh_dir / f"{name}.{mesh_export_type}"
+                sly.logger.debug(f"Writing mesh to {path}")
                 try:
                     fig.geometry.write_mesh_to_file(str(path))
                 except Exception as e:
-                    sly.logger.warning(f"Failed to write mesh for figure '{fig.key()}': {str(e)}")
+                    sly.logger.warning(
+                        f"Failed to write mesh for figure (id: {fig.geometry.sly_id}): {str(e)}"
+                    )
                     continue
                 sly.logger.debug("Successfully wrote mesh to file", extra={"mesh_path": str(path)})
 

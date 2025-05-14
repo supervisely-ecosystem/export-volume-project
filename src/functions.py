@@ -298,7 +298,9 @@ def write_meshes(local_project_dir: str, mesh_export_type: str) -> None:
             ann = sly.VolumeAnnotation.from_json(ann_json, project_fs.meta)
             for fig in ann.spatial_figures:
                 sf_geometry_name = fig.key().hex + ".nrrd"
-                full_sf_geometry_path = os.path.join(ds.get_mask_dir(name), sf_geometry_name)
+                full_sf_geometry_path = os.path.join(
+                    local_project_dir, ds.get_mask_dir(name), sf_geometry_name
+                )
                 if os.path.exists(full_sf_geometry_path):
                     sly.logger.info(f"Loading geometry from {full_sf_geometry_path}")
                     mask3d = sly.Mask3D.from_file(fig, full_sf_geometry_path)

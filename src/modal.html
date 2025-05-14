@@ -32,12 +32,6 @@
     </div>
       </div>
     </div>
-    <div v-if="state.format === 'meshes'" class="mt10">
-      <el-radio-group v-model="state.meshExportType">
-        <el-radio-button label="stl" value="stl">STL</el-radio-button>
-        <el-radio-button label="obj" value="obj">OBJ</el-radio-button>
-      </el-radio-group>
-    </div>
     <div class="mt10">
       <br />
       &#9432; All closed mesh surface (.stl) will be converted to Mask3D (.nrrd)
@@ -62,4 +56,10 @@
         <br />
       </div>
     </sly-field>
+</div>
+<div v-if="state.format === 'meshes'" class="mt10">
+  <el-radio-group v-model="state.meshExportType">
+    <el-radio-button label="stl" value="stl">STL</el-radio-button>
+    <el-radio-button label="obj" value="obj">OBJ</el-radio-button>
+  </el-radio-group>
 </div>

@@ -299,11 +299,14 @@ def write_meshes(local_project_dir: str, mesh_export_type: str) -> None:
             for fig in ann.spatial_figures:
                 sf_geometry_name = fig.key().hex + ".nrrd"
                 full_sf_geometry_path = os.path.join(
-                    local_project_dir, ds.get_mask_dir(name), sf_geometry_name
+                    ds_path, ds.get_mask_dir(name), sf_geometry_name
                 )
                 if os.path.exists(full_sf_geometry_path):
                     sly.logger.info(f"Loading geometry from {full_sf_geometry_path}")
                     mask3d = sly.Mask3D.from_file(fig, full_sf_geometry_path)
+                    if mask3d is None:
+                        sly.logger.warning(f"Failed to load geometry from {full_sf_geometry_path}")
+                        continue
                     fig._set_3d_geometry(mask3d)
                 else:
                     api.volume.figure.load_sf_geometry(fig, project_fs.key_id_map)

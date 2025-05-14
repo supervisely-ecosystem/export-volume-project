@@ -6,7 +6,7 @@
         <el-option key="meshes" label="Generate meshes from Mask3D" value="meshes"></el-option>
     </el-select>
   </sly-field>
-  <div v-if="state.format === 'sly'">x
+  <div v-if="state.format === 'sly'">
         <el-checkbox v-model="state.downloadAnnotations" disabled
           >Download annotations (.json, .nrrd)</el-checkbox
       >
@@ -30,12 +30,6 @@
         >Additionally, save all objects as one in Mask3D format (.nrrd)
       </el-checkbox>
     </div>
-      </div>
-      <div v-if="state.showMeshExportOptions" class="mt10">
-        <el-radio-group v-model="state.meshExportType">
-          <el-radio-button label="stl" value="stl">STL</el-radio-button>
-          <el-radio-button label="obj" value="obj">OBJ</el-radio-button>
-        </el-radio-group>
       </div>
     </div>
     <div class="mt10">
@@ -62,4 +56,10 @@
         <br />
       </div>
     </sly-field>
+</div>
+<div v-if="state.format === 'meshes'" class="mt10">
+  <el-radio-group v-model="state.meshExportType">
+    <el-radio-button label="stl" value="stl">STL</el-radio-button>
+    <el-radio-button label="obj" value="obj">OBJ</el-radio-button>
+  </el-radio-group>
 </div>

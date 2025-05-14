@@ -59,10 +59,10 @@ def download(api: sly.Api, task_id, context, state, app_logger):
         ):
             convert_all(download_dir, project_meta, key_id_map)
 
-        if g.save_mesh:
-            f.write_meshes(download_dir, g.mesh_export_type)
     elif g.format == "nifti":
         f.convert_volume_project(download_dir, g.segmentation_type)
+    elif g.format == "meshes":
+        download_dir = f.write_meshes(download_dir, g.mesh_export_type)
     else:
         raise ValueError(f"Unsupported format: {g.format}")
 

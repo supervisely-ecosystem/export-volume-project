@@ -46,7 +46,6 @@ download_annotations = True  # bool(strtobool(os.getenv('modal.state.downloadAnn
 save_instance_segmentation = bool(strtobool(os.getenv("modal.state.saveInstanceSegmentationMasks")))
 save_semantic_segmentation = bool(strtobool(os.getenv("modal.state.saveSemanticSegmentationMasks")))
 
-save_mesh = bool(strtobool(os.getenv("modal.state.showMeshExportOptions")))
 mesh_export_type = os.getenv("modal.state.meshExportType", "stl")
 class2idx = {}
 

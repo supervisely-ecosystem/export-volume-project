@@ -14,7 +14,6 @@
     "downloadAnnotations": true,
     "saveInstanceSegmentationMasks": true,
     "saveSemanticSegmentationMasks": true,
-    "showMeshExportOptions": false,
     "meshExportType": "stl"
   },
   "task_location": "workspace_tasks",

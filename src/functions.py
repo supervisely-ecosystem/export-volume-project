@@ -274,7 +274,7 @@ def convert_volume_project(local_project_dir: str, segmentation_type: str) -> st
     os.rename(str(new_project_dir), local_project_dir)
 
 
-def write_meshes(local_project_dir: str, mesh_export_type: str) -> None:
+def write_meshes(local_project_dir: str, mesh_export_type: str) -> str:
     """
     Write meshes to the local project directory.
 
@@ -285,8 +285,11 @@ def write_meshes(local_project_dir: str, mesh_export_type: str) -> None:
     from pathlib import Path
     from globals import api
 
-    project_fs = sly.VolumeProject(local_project_dir, mode=sly.OpenMode.READ)
     local_project_dir = Path(local_project_dir)
+    out_dir = Path(local_project_dir).with_name("meshes")
+    sly.logger.debug(f"Project directory: {local_project_dir}, Output directory: {out_dir}")
+
+    project_fs = sly.VolumeProject(local_project_dir, mode=sly.OpenMode.READ)
     for ds in project_fs.datasets:
         ds: sly.VolumeDataset
         ds_path = local_project_dir / ds.name
@@ -315,14 +318,15 @@ def write_meshes(local_project_dir: str, mesh_export_type: str) -> None:
                 else:
                     api.volume.figure.load_sf_geometry(fig, project_fs.key_id_map)
 
-                path = mesh_dir / f"{name}.{mesh_export_type}"
+                path = out_dir / ds_path / f"{name}.{mesh_export_type}"
                 sly.logger.debug(f"Mask3D shape: {fig.geometry.data.shape}")
                 try:
-                    fig.geometry.write_mesh_to_file(str(path))
+                    api.volume.export_3d_as_mesh(fig.geometry, str(path))
                 except Exception as e:
                     sly.logger.warning(
                         f"Failed to write mesh for figure (id: {fig.geometry.sly_id}): {str(e)}"
                     )
                     continue
 
-    sly.logger.info(f"Meshes written to {local_project_dir}")
+    sly.logger.info(f"Finished downloading meshes")
+    return str(out_dir)

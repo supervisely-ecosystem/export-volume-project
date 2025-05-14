@@ -3,10 +3,10 @@
     <el-select v-model="state.format" placeholder="Select format">
         <el-option key="sly" label="Supervisely (NRRD + JSON)" value="sly"></el-option>
         <el-option key="nifti" label="NIFTI" value="nifti"></el-option>
+        <el-option key="meshes" label="Generate meshes from Mask3D" value="meshes"></el-option>
     </el-select>
   </sly-field>
-  <div v-if="state.format === 'sly'">
-      <div class="mt10">
+  <div v-if="state.format === 'sly'">x
         <el-checkbox v-model="state.downloadAnnotations" disabled
           >Download annotations (.json, .nrrd)</el-checkbox
       >
@@ -31,10 +31,6 @@
       </el-checkbox>
     </div>
       </div>
-    <div class="mt10">
-      <el-checkbox v-model="state.showMeshExportOptions">
-        Export 3D geometries to STL/OBJ meshes
-      </el-checkbox>
       <div v-if="state.showMeshExportOptions" class="mt10">
         <el-radio-group v-model="state.meshExportType">
           <el-radio-button label="stl" value="stl">STL</el-radio-button>
@@ -51,7 +47,7 @@
       <br />
     </div>
   </div>
-  <div v-if="state.format === 'nifti'">
+<div v-if="state.format === 'nifti'">
     <sly-field title="Segmentation type" description="Specify which task type to use for NIfTI export">
       <div class="mt10">
         <el-radio-group v-model="state.segmentationType">

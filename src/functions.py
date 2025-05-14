@@ -303,7 +303,7 @@ def write_meshes(local_project_dir: str, mesh_export_type: str) -> None:
                 )
                 if os.path.exists(full_sf_geometry_path):
                     sly.logger.info(f"Loading geometry from {full_sf_geometry_path}")
-                    mask3d = sly.Mask3D.from_file(fig, full_sf_geometry_path)
+                    mask3d = sly.Mask3D.create_from_file(full_sf_geometry_path)
                     if mask3d is None:
                         sly.logger.warning(f"Failed to load geometry from {full_sf_geometry_path}")
                         continue

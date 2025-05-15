@@ -30,8 +30,6 @@
         >Additionally, save all objects as one in Mask3D format (.nrrd)
       </el-checkbox>
     </div>
-      </div>
-    </div>
     <div class="mt10">
       <br />
       &#9432; All closed mesh surface (.stl) will be converted to Mask3D (.nrrd)
@@ -41,25 +39,28 @@
       <br />
     </div>
   </div>
-<div v-if="state.format === 'nifti'">
-    <sly-field title="Segmentation type" description="Specify which task type to use for NIfTI export">
-      <div class="mt10">
-        <el-radio-group v-model="state.segmentationType">
-          <el-radio-button label="semantic" value="semantic"></el-radio-button>
-          <el-radio-button label="instance" value="instance"></el-radio-button>
-        </el-radio-group>
-      </div>
-      <div class="mt10">
-        <br />
-        &#9432; If volume was originally in NIFTI format and imported from remote storage, 
-        the original NIfTI volumes will be used for export instead of converting Supervisely volume format to NIfTI.
-        <br />
-      </div>
+  <div v-if="state.format === 'nifti'">
+      <sly-field title="Segmentation type" description="Specify which task type to use for NIfTI export">
+        <div class="mt10">
+          <el-radio-group v-model="state.segmentationType">
+            <el-radio-button label="semantic" value="semantic"></el-radio-button>
+            <el-radio-button label="instance" value="instance"></el-radio-button>
+          </el-radio-group>
+        </div>
+        <div class="mt10">
+          <br />
+          &#9432; If volume was originally in NIFTI format and imported from remote storage, 
+          the original NIfTI volumes will be used for export instead of converting Supervisely volume format to NIfTI.
+          <br />
+        </div>
+      </sly-field>
+  </div>
+  <div v-if="state.format === 'meshes'" class="mt10">
+    <sly-field title="Mesh export format" description="Specify which mesh export format to use">
+      <el-radio-group v-model="state.meshExportType">
+        <el-radio-button label="stl" value="stl">STL</el-radio-button>
+        <el-radio-button label="obj" value="obj">OBJ</el-radio-button>
+      </el-radio-group>
     </sly-field>
-</div>
-<div v-if="state.format === 'meshes'" class="mt10">
-  <el-radio-group v-model="state.meshExportType">
-    <el-radio-button label="stl" value="stl">STL</el-radio-button>
-    <el-radio-button label="obj" value="obj">OBJ</el-radio-button>
-  </el-radio-group>
+  </div>
 </div>

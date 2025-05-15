@@ -298,9 +298,16 @@ def write_meshes(local_project_dir: str, mesh_export_type: str) -> str:
         for name in ds.get_items_names():
             ann_path = ds.get_ann_path(name)
             ann_json = sly.json.load_json_file(ann_path)
+            fig_index = {f[KEY]: f["geometry"]["id"] for f in ann_json[SPATIAL_FIGURES]}
             ann = sly.VolumeAnnotation.from_json(ann_json, project_fs.meta)
             for fig in ann.spatial_figures:
-                sf_geometry_name = fig.key().hex + ".nrrd"
+                figure_key = fig.key().hex
+                figure_id = fig_index.get(figure_key, None)
+                if figure_id is None:
+                    sly.logger.warning(f"Figure ID not found in JSON for figure {fig.key().hex}")
+                    continue
+
+                sf_geometry_name = figure_key + ".nrrd"
                 full_sf_geometry_path = os.path.join(
                     ds_path, ds.get_mask_dir(name), sf_geometry_name
                 )
@@ -320,16 +327,6 @@ def write_meshes(local_project_dir: str, mesh_export_type: str) -> str:
 
                 export_folder = out_dir / ds.name
                 export_folder.mkdir(parents=True, exist_ok=True)
-
-                figure_id = None
-                for fig_json in ann_json[SPATIAL_FIGURES]:
-                    if fig_json[KEY] == fig.key().hex:
-                        figure_id = fig_json["geometry"]["id"]
-                        break
-
-                if figure_id is None:
-                    sly.logger.warning(f"Figure ID not found in JSON for figure {fig.key().hex}")
-                    continue
 
                 path = (export_folder / f"{figure_id}.{mesh_export_type}").as_posix()
 

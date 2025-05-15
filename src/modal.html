@@ -3,7 +3,7 @@
     <el-select v-model="state.format" placeholder="Select format">
         <el-option key="sly" label="Supervisely (NRRD + JSON)" value="sly"></el-option>
         <el-option key="nifti" label="NIFTI" value="nifti"></el-option>
-        <el-option key="meshes" label="Generate meshes from Mask3D" value="meshes"></el-option>
+        <el-option key="meshes" label="Mask3D Objects as Meshes" value="meshes"></el-option>
     </el-select>
   </sly-field>
   <div v-if="state.format === 'sly'">

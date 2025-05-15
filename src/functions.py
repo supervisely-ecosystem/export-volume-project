@@ -283,10 +283,10 @@ def write_meshes(local_project_dir: str, mesh_export_type: str) -> str:
         mesh_export_type (str): Type of mesh export (e.g., "stl").
     """
     from supervisely.volume.volume import export_3d_as_mesh
+    from supervisely.volume_annotation.constants import SPATIAL_FIGURES, KEY
+
     from pathlib import Path
     from globals import api
-
-    sly.logger.debug(f"Project directory: {local_project_dir}, Output directory: {out_dir}")
 
     project_fs = sly.VolumeProject(local_project_dir, mode=sly.OpenMode.READ)
     local_project_dir = Path(local_project_dir)
@@ -295,8 +295,6 @@ def write_meshes(local_project_dir: str, mesh_export_type: str) -> str:
     for ds in project_fs.datasets:
         ds: sly.VolumeDataset
         ds_path = local_project_dir / ds.name
-        path = out_dir / ds.name
-        path.mkdir(parents=True, exist_ok=True)
         for name in ds.get_items_names():
             ann_path = ds.get_ann_path(name)
             ann_json = sly.json.load_json_file(ann_path)
@@ -320,10 +318,24 @@ def write_meshes(local_project_dir: str, mesh_export_type: str) -> str:
                 else:
                     api.volume.figure.load_sf_geometry(fig, project_fs.key_id_map)
 
-                path = out_dir / ds.name / f"{name}.{mesh_export_type}"
+                export_folder = out_dir / ds.name
+                export_folder.mkdir(parents=True, exist_ok=True)
+
+                figure_id = None
+                for fig_json in ann_json[SPATIAL_FIGURES]:
+                    if fig_json[KEY] == fig.key().hex:
+                        figure_id = fig_json["geometry"]["id"]
+                        break
+
+                if figure_id is None:
+                    sly.logger.warning(f"Figure ID not found in JSON for figure {fig.key().hex}")
+                    continue
+
+                path = (export_folder / f"{figure_id}.{mesh_export_type}").as_posix()
+
                 sly.logger.debug(f"Mask3D shape: {fig.geometry.data.shape}")
                 try:
-                    export_3d_as_mesh(fig.geometry, str(path))
+                    export_3d_as_mesh(fig.geometry, path)
                 except Exception as e:
                     sly.logger.warning(
                         f"Failed to write mesh for figure (id: {fig.geometry.sly_id}): {str(e)}"

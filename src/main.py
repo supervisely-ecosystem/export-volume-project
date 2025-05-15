@@ -68,7 +68,7 @@ def download(api: sly.Api, task_id, context, state, app_logger):
 
     full_archive_name = str(project.id) + "_" + project.name + ".tar"
     result_archive = os.path.join(g.my_app.data_dir, full_archive_name)
-    archive_dir = os.path.dirname(download_dir)
+    archive_dir = os.path.dirname(download_dir) if not g.format == "meshes" else download_dir
     sly.fs.archive_directory(archive_dir, result_archive)
     app_logger.info("Result directory is archived")
 

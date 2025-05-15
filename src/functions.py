@@ -282,6 +282,7 @@ def write_meshes(local_project_dir: str, mesh_export_type: str) -> str:
         local_project_dir (str): Path to the local project directory.
         mesh_export_type (str): Type of mesh export (e.g., "stl").
     """
+    from supervisely.volume.volume import export_3d_as_mesh
     from pathlib import Path
     from globals import api
 
@@ -322,7 +323,7 @@ def write_meshes(local_project_dir: str, mesh_export_type: str) -> str:
                 path = out_dir / ds_path / f"{name}.{mesh_export_type}"
                 sly.logger.debug(f"Mask3D shape: {fig.geometry.data.shape}")
                 try:
-                    api.volume.export_3d_as_mesh(fig.geometry, str(path))
+                    export_3d_as_mesh(fig.geometry, str(path))
                 except Exception as e:
                     sly.logger.warning(
                         f"Failed to write mesh for figure (id: {fig.geometry.sly_id}): {str(e)}"

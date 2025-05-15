@@ -307,7 +307,7 @@ def write_meshes(local_project_dir: str, mesh_export_type: str) -> str:
                     ds_path, ds.get_mask_dir(name), sf_geometry_name
                 )
                 if os.path.exists(full_sf_geometry_path):
-                    sly.logger.debug(f"Loading geometry from {full_sf_geometry_path}")
+                    sly.logger.debug(f"Loading geometry from file. Path: {full_sf_geometry_path}")
                     try:
                         mask3d = sly.Mask3D.create_from_file(full_sf_geometry_path)
                         assert mask3d is not None, "Failed to create Mask3D"

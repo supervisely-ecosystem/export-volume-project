@@ -286,17 +286,17 @@ def write_meshes(local_project_dir: str, mesh_export_type: str) -> str:
     from pathlib import Path
     from globals import api
 
-    out_dir = Path(local_project_dir).with_name("meshes")
     sly.logger.debug(f"Project directory: {local_project_dir}, Output directory: {out_dir}")
 
     project_fs = sly.VolumeProject(local_project_dir, mode=sly.OpenMode.READ)
     local_project_dir = Path(local_project_dir)
+    out_dir = local_project_dir.with_name("meshes")
 
     for ds in project_fs.datasets:
         ds: sly.VolumeDataset
         ds_path = local_project_dir / ds.name
-        mesh_dir = ds_path / "meshes"
-        mesh_dir.mkdir(parents=True, exist_ok=True)
+        path = out_dir / ds.name
+        path.mkdir(parents=True, exist_ok=True)
         for name in ds.get_items_names():
             ann_path = ds.get_ann_path(name)
             ann_json = sly.json.load_json_file(ann_path)
@@ -320,7 +320,7 @@ def write_meshes(local_project_dir: str, mesh_export_type: str) -> str:
                 else:
                     api.volume.figure.load_sf_geometry(fig, project_fs.key_id_map)
 
-                path = out_dir / ds_path / f"{name}.{mesh_export_type}"
+                path = out_dir / ds.name / f"{name}.{mesh_export_type}"
                 sly.logger.debug(f"Mask3D shape: {fig.geometry.data.shape}")
                 try:
                     export_3d_as_mesh(fig.geometry, str(path))

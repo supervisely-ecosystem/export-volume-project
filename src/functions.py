@@ -285,11 +285,12 @@ def write_meshes(local_project_dir: str, mesh_export_type: str) -> str:
     from pathlib import Path
     from globals import api
 
-    local_project_dir = Path(local_project_dir)
     out_dir = Path(local_project_dir).with_name("meshes")
     sly.logger.debug(f"Project directory: {local_project_dir}, Output directory: {out_dir}")
 
     project_fs = sly.VolumeProject(local_project_dir, mode=sly.OpenMode.READ)
+    local_project_dir = Path(local_project_dir)
+
     for ds in project_fs.datasets:
         ds: sly.VolumeDataset
         ds_path = local_project_dir / ds.name

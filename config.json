@@ -13,7 +13,8 @@
     "downloadVolumes": true,
     "downloadAnnotations": true,
     "saveInstanceSegmentationMasks": true,
-    "saveSemanticSegmentationMasks": true
+    "saveSemanticSegmentationMasks": true,
+    "meshExportType": "stl"
   },
   "task_location": "workspace_tasks",
   "headless": true,

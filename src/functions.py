@@ -73,7 +73,6 @@ def get_nonexistent_path(file_path):
     return new_fname
 
 
-
 def convert_nrrd_to_nifti(nrrd_path: str, nifti_path: str) -> None:
     """
     Convert a NRRD volume to NIfTI format.
@@ -122,7 +121,6 @@ def convert_volume_project(local_project_dir: str, segmentation_type: str) -> st
     from globals import PlanePrefix
     import numpy as np
     from pathlib import Path
-
 
     project_id = g.get_project_id()
 
@@ -274,3 +272,72 @@ def convert_volume_project(local_project_dir: str, segmentation_type: str) -> st
 
     sly.fs.remove_dir(local_project_dir)
     os.rename(str(new_project_dir), local_project_dir)
+
+
+def write_meshes(local_project_dir: str, mesh_export_type: str) -> str:
+    """
+    Write meshes to the local project directory.
+
+    Args:
+        local_project_dir (str): Path to the local project directory.
+        mesh_export_type (str): Type of mesh export (e.g., "stl").
+    """
+    from supervisely.volume.volume import export_3d_as_mesh
+    from supervisely.volume_annotation.constants import SPATIAL_FIGURES, KEY
+
+    from pathlib import Path
+    from globals import api
+
+    project_fs = sly.VolumeProject(local_project_dir, mode=sly.OpenMode.READ)
+    local_project_dir = Path(local_project_dir)
+    out_dir = local_project_dir.with_name("meshes")
+
+    for ds in project_fs.datasets:
+        ds: sly.VolumeDataset
+        ds_path = local_project_dir / ds.name
+        for name in ds.get_items_names():
+            ann_path = ds.get_ann_path(name)
+            ann_json = sly.json.load_json_file(ann_path)
+            fig_index = {f[KEY]: f["geometry"]["id"] for f in ann_json[SPATIAL_FIGURES]}
+            ann = sly.VolumeAnnotation.from_json(ann_json, project_fs.meta)
+            for fig in ann.spatial_figures:
+                figure_key = fig.key().hex
+                figure_id = fig_index.get(figure_key, None)
+                if figure_id is None:
+                    sly.logger.warning(f"Figure ID not found in JSON for figure {fig.key().hex}")
+                    continue
+
+                sf_geometry_name = figure_key + ".nrrd"
+                full_sf_geometry_path = os.path.join(
+                    ds_path, ds.get_mask_dir(name), sf_geometry_name
+                )
+                if os.path.exists(full_sf_geometry_path):
+                    sly.logger.debug(f"Loading geometry from file. Path: {full_sf_geometry_path}")
+                    try:
+                        mask3d = sly.Mask3D.create_from_file(full_sf_geometry_path)
+                        assert mask3d is not None, "Failed to create Mask3D"
+                        fig._set_3d_geometry(mask3d)
+                    except Exception as e:
+                        sly.logger.warning(
+                            f"Failed to load geometry from {full_sf_geometry_path}: {str(e)}"
+                        )
+                        continue
+                else:
+                    api.volume.figure.load_sf_geometry(fig, project_fs.key_id_map)
+
+                export_folder = out_dir / ds.name
+                export_folder.mkdir(parents=True, exist_ok=True)
+
+                path = (export_folder / f"{figure_id}.{mesh_export_type}").as_posix()
+
+                sly.logger.debug(f"Mask3D shape: {fig.geometry.data.shape}")
+                try:
+                    export_3d_as_mesh(fig.geometry, path)
+                except Exception as e:
+                    sly.logger.warning(
+                        f"Failed to write mesh for figure (id: {fig.geometry.sly_id}): {str(e)}"
+                    )
+                    continue
+
+    sly.logger.info(f"Finished downloading meshes")
+    return str(out_dir)

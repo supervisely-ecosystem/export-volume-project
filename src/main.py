@@ -50,7 +50,7 @@ def download(api: sly.Api, task_id, context, state, app_logger):
         g.class2idx = f.create_class2idx_map(project_meta)
         class2idx_path = os.path.join(download_dir, "class2idx.json")
         dump_json_file(g.class2idx, class2idx_path)
-        
+
         if g.download_volumes and any(
             [
                 g.save_instance_segmentation,
@@ -58,14 +58,17 @@ def download(api: sly.Api, task_id, context, state, app_logger):
             ]
         ):
             convert_all(download_dir, project_meta, key_id_map)
+
     elif g.format == "nifti":
         f.convert_volume_project(download_dir, g.segmentation_type)
+    elif g.format == "meshes":
+        download_dir = f.write_meshes(download_dir, g.mesh_export_type)
     else:
         raise ValueError(f"Unsupported format: {g.format}")
 
     full_archive_name = str(project.id) + "_" + project.name + ".tar"
     result_archive = os.path.join(g.my_app.data_dir, full_archive_name)
-    archive_dir = os.path.dirname(download_dir)
+    archive_dir = os.path.dirname(download_dir) if not g.format == "meshes" else download_dir
     sly.fs.archive_directory(archive_dir, result_archive)
     app_logger.info("Result directory is archived")
 

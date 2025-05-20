@@ -32,6 +32,8 @@ Application key points:
 - Instance segmentation masks are duplicated with human-readable file names for convenience
 - Export Semantic segmentation as a single Mask3D for all objects in `.nrrd` format
 - Semantic segmentation generates `class2idx.json` mapping, e.g. `{"lung": 1, "brain": 2}`
+- Export project in NIfTI format for both semantic and instance segmentation tasks
+- Export project's spatial geometries as `.stl` or `.obj` meshes
 
 💡 If you will download only annotations, i.e. all available checkboxes will be turned off, the project structure will contain the `volume` directory with empty (zero-sized) volumes `.nrrd` files. This is not a bug, but a special solution for displaying the format in which you will need to substitute volumes when uploading them to the platform.
 
@@ -52,6 +54,9 @@ Application key points:
 
 
 ## What's new 
+
+Version `v2.4.2`
+  - Added option to export Mask3D (spatial) geometries as `STL` or `OBJ` meshes.
 
 Version `v2.4.1`
   - Added option to export to NIfTI format for both instance and semantic segmentation types. If input data was originally imported in NIfTI format **from cloud storage**, original volume files will be exported instead of converting existing files. For more details on output structure, check [NIfTI converter documentation](https://docs.supervisely.com/import-and-export/import/supported-annotation-formats/volumes/nifti).

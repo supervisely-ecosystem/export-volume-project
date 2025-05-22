@@ -5,6 +5,7 @@ import supervisely as sly
 from supervisely.io.fs import mkdir
 from supervisely.io.json import load_json_file
 from supervisely.volume_annotation.volume_annotation import VolumeAnnotation
+from supervisely.volume.stl_converter import matrix_from_nrrd_header
 
 
 def create_class2idx_map(project_meta: sly.ProjectMeta):
@@ -282,9 +283,8 @@ def write_meshes(local_project_dir: str, mesh_export_type: str) -> str:
         local_project_dir (str): Path to the local project directory.
         mesh_export_type (str): Type of mesh export (e.g., "stl").
     """
-    from supervisely.volume.volume import export_3d_as_mesh
     from supervisely.volume_annotation.constants import SPATIAL_FIGURES, KEY
-
+    import numpy as np
     from pathlib import Path
     from globals import api
 
@@ -300,6 +300,8 @@ def write_meshes(local_project_dir: str, mesh_export_type: str) -> str:
             ann_json = sly.json.load_json_file(ann_path)
             fig_index = {f[KEY]: f["geometry"]["id"] for f in ann_json[SPATIAL_FIGURES]}
             ann = sly.VolumeAnnotation.from_json(ann_json, project_fs.meta)
+            export_folder = out_dir / ds.name / Path(name).stem
+            export_folder.mkdir(parents=True, exist_ok=True)
             for fig in ann.spatial_figures:
                 figure_key = fig.key().hex
                 figure_id = fig_index.get(figure_key, None)
@@ -325,14 +327,29 @@ def write_meshes(local_project_dir: str, mesh_export_type: str) -> str:
                 else:
                     api.volume.figure.load_sf_geometry(fig, project_fs.key_id_map)
 
-                export_folder = out_dir / ds.name
-                export_folder.mkdir(parents=True, exist_ok=True)
-
                 path = (export_folder / f"{figure_id}.{mesh_export_type}").as_posix()
-
                 sly.logger.debug(f"Mask3D shape: {fig.geometry.data.shape}")
                 try:
-                    export_3d_as_mesh(fig.geometry, path)
+                    mesh = sly.volume.volume.convert_3d_geometry_to_mesh(fig.geometry)
+
+                    # read volume header
+                    volume_path = ds.get_item_path(name)
+                    header = nrrd.read_header(volume_path)
+
+                    # create transform matrix
+                    transform = matrix_from_nrrd_header(header)
+                    # flip axis to RAS coordinate system
+                    lps2ras = np.diag([-1, -1, 1, 1])
+
+                    # combine matrices
+                    world_mat = lps2ras @ transform
+                    half_offset = 0.5 * np.sum(header["space directions"], axis=0)
+                    world_mat[:3, 3] += half_offset
+
+                    # apply transform to mesh
+                    mesh.apply_transform(world_mat)
+                    mesh.export(path)
+
                 except Exception as e:
                     sly.logger.warning(
                         f"Failed to write mesh for figure (id: {fig.geometry.sly_id}): {str(e)}"

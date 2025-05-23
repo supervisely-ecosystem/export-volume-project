@@ -331,22 +331,21 @@ def write_meshes(local_project_dir: str, mesh_export_type: str) -> str:
                     api.volume.figure.load_sf_geometry(fig, project_fs.key_id_map)
 
                 sly.logger.debug(f"Mask3D shape: {fig.geometry.data.shape}")
-                try:
-                    if fig.geometry._space_directions is None or fig.geometry._space_origin is None:
+                volume_header = None
+                if fig.geometry.space_directions is None or fig.geometry.space_origin is None:
+                    try:
                         volume_path = ds.get_item_path(name)
-                        header = nrrd.read_header(volume_path)
-                        fig.geometry._space_directions = header["space directions"]
-                        fig.geometry._space_origin = header["space origin"]
-                except Exception as e:
-                    sly.logger.warning(
-                        f"Failed to set NRRD header for geometry (figure id: {figure_id}): {str(e)}"
-                    )
-                    continue
+                        volume_header = nrrd.read_header(volume_path)
+                    except Exception as e:
+                        sly.logger.warning(
+                            f"Failed to set NRRD header for geometry (figure id: {figure_id}): {str(e)}"
+                        )
+                        continue
 
                 path = (export_folder / f"{figure_id}.{mesh_export_type}").as_posix()
                 try:
                     sly.volume.volume.export_3d_as_mesh(
-                        fig.geometry, path, {"spacing": (1.0, 1.0, 1.0)}
+                        fig.geometry, path, volume_meta=volume_header
                     )
                 except Exception as e:
                     sly.logger.warning(

@@ -298,8 +298,11 @@ def write_meshes(local_project_dir: str, mesh_export_type: str) -> str:
         for name in ds.get_items_names():
             ann_path = ds.get_ann_path(name)
             ann_json = sly.json.load_json_file(ann_path)
-            fig_index = {f[KEY]: f["geometry"]["id"] for f in ann_json[SPATIAL_FIGURES]}
             ann = sly.VolumeAnnotation.from_json(ann_json, project_fs.meta)
+            if len(ann.spatial_figures) == 0:
+                continue
+            fig_index = {f[KEY]: f["geometry"]["id"] for f in ann_json[SPATIAL_FIGURES]}
+
             export_folder = out_dir / ds.name / Path(name).stem
             export_folder.mkdir(parents=True, exist_ok=True)
             for fig in ann.spatial_figures:
@@ -327,29 +330,24 @@ def write_meshes(local_project_dir: str, mesh_export_type: str) -> str:
                 else:
                     api.volume.figure.load_sf_geometry(fig, project_fs.key_id_map)
 
-                path = (export_folder / f"{figure_id}.{mesh_export_type}").as_posix()
                 sly.logger.debug(f"Mask3D shape: {fig.geometry.data.shape}")
                 try:
-                    mesh = sly.volume.volume.convert_3d_geometry_to_mesh(fig.geometry)
+                    if fig.geometry._space_directions is None or fig.geometry._space_origin is None:
+                        volume_path = ds.get_item_path(name)
+                        header = nrrd.read_header(volume_path)
+                        fig.geometry._space_directions = header["space directions"]
+                        fig.geometry._space_origin = header["space origin"]
+                except Exception as e:
+                    sly.logger.warning(
+                        f"Failed to set NRRD header for geometry (figure id: {figure_id}): {str(e)}"
+                    )
+                    continue
 
-                    # read volume header
-                    volume_path = ds.get_item_path(name)
-                    header = nrrd.read_header(volume_path)
-
-                    # create transform matrix
-                    transform = matrix_from_nrrd_header(header)
-                    # flip axis to RAS coordinate system
-                    lps2ras = np.diag([-1, -1, 1, 1])
-
-                    # combine matrices
-                    world_mat = lps2ras @ transform
-                    half_offset = 0.5 * np.sum(header["space directions"], axis=0)
-                    world_mat[:3, 3] += half_offset
-
-                    # apply transform to mesh
-                    mesh.apply_transform(world_mat)
-                    mesh.export(path)
-
+                path = (export_folder / f"{figure_id}.{mesh_export_type}").as_posix()
+                try:
+                    sly.volume.volume.export_3d_as_mesh(
+                        fig.geometry, path, {"spacing": (1.0, 1.0, 1.0)}
+                    )
                 except Exception as e:
                     sly.logger.warning(
                         f"Failed to write mesh for figure (id: {fig.geometry.sly_id}): {str(e)}"

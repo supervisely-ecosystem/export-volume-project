@@ -284,7 +284,6 @@ def write_meshes(local_project_dir: str, mesh_export_type: str) -> str:
         mesh_export_type (str): Type of mesh export (e.g., "stl").
     """
     from supervisely.volume_annotation.constants import SPATIAL_FIGURES, KEY
-    import numpy as np
     from pathlib import Path
     from globals import api
 

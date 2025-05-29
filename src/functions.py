@@ -5,6 +5,7 @@ import supervisely as sly
 from supervisely.io.fs import mkdir
 from supervisely.io.json import load_json_file
 from supervisely.volume_annotation.volume_annotation import VolumeAnnotation
+from supervisely.volume.stl_converter import matrix_from_nrrd_header
 
 
 def create_class2idx_map(project_meta: sly.ProjectMeta):
@@ -282,9 +283,7 @@ def write_meshes(local_project_dir: str, mesh_export_type: str) -> str:
         local_project_dir (str): Path to the local project directory.
         mesh_export_type (str): Type of mesh export (e.g., "stl").
     """
-    from supervisely.volume.volume import export_3d_as_mesh
     from supervisely.volume_annotation.constants import SPATIAL_FIGURES, KEY
-
     from pathlib import Path
     from globals import api
 
@@ -298,8 +297,13 @@ def write_meshes(local_project_dir: str, mesh_export_type: str) -> str:
         for name in ds.get_items_names():
             ann_path = ds.get_ann_path(name)
             ann_json = sly.json.load_json_file(ann_path)
-            fig_index = {f[KEY]: f["geometry"]["id"] for f in ann_json[SPATIAL_FIGURES]}
             ann = sly.VolumeAnnotation.from_json(ann_json, project_fs.meta)
+            if len(ann.spatial_figures) == 0:
+                continue
+            fig_index = {f[KEY]: f["geometry"]["id"] for f in ann_json[SPATIAL_FIGURES]}
+
+            export_folder = out_dir / ds.name / Path(name).stem
+            export_folder.mkdir(parents=True, exist_ok=True)
             for fig in ann.spatial_figures:
                 figure_key = fig.key().hex
                 figure_id = fig_index.get(figure_key, None)
@@ -325,14 +329,23 @@ def write_meshes(local_project_dir: str, mesh_export_type: str) -> str:
                 else:
                     api.volume.figure.load_sf_geometry(fig, project_fs.key_id_map)
 
-                export_folder = out_dir / ds.name
-                export_folder.mkdir(parents=True, exist_ok=True)
+                sly.logger.debug(f"Mask3D shape: {fig.geometry.data.shape}")
+                volume_header = None
+                if fig.geometry.space_directions is None or fig.geometry.space_origin is None:
+                    try:
+                        volume_path = ds.get_item_path(name)
+                        volume_header = nrrd.read_header(volume_path)
+                    except Exception as e:
+                        sly.logger.warning(
+                            f"Failed to set NRRD header for geometry (figure id: {figure_id}): {str(e)}"
+                        )
+                        continue
 
                 path = (export_folder / f"{figure_id}.{mesh_export_type}").as_posix()
-
-                sly.logger.debug(f"Mask3D shape: {fig.geometry.data.shape}")
                 try:
-                    export_3d_as_mesh(fig.geometry, path)
+                    sly.volume.volume.export_3d_as_mesh(
+                        fig.geometry, path, volume_meta=volume_header
+                    )
                 except Exception as e:
                     sly.logger.warning(
                         f"Failed to write mesh for figure (id: {fig.geometry.sly_id}): {str(e)}"

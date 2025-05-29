@@ -16,6 +16,7 @@ sys.path.append(root_source_dir)
 if sly.is_development():
     load_dotenv("debug.env")
     load_dotenv(os.path.expanduser("~/supervisely.env"))
+    sly.fs.clean_dir(os.environ["DEBUG_APP_DIR"])
 
 
 api: sly.Api = sly.Api.from_env()

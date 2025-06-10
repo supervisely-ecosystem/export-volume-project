@@ -1,11 +1,9 @@
 import os
-
 import nrrd
 import supervisely as sly
 from supervisely.io.fs import mkdir
 from supervisely.io.json import load_json_file
 from supervisely.volume_annotation.volume_annotation import VolumeAnnotation
-from supervisely.volume.stl_converter import matrix_from_nrrd_header
 
 
 def create_class2idx_map(project_meta: sly.ProjectMeta):
@@ -152,10 +150,12 @@ def convert_volume_project(local_project_dir: str, segmentation_type: str) -> st
         ds_path = new_project_dir / ds.name
         ds_path.mkdir(parents=True, exist_ok=True)
 
-        ds_structure_type = 1
+        ds_structure_type = 2
         prefixes = [PlanePrefix.AXIAL, PlanePrefix.CORONAL, PlanePrefix.SAGITTAL]
-        if all(name[:3] in prefixes for name in ds.get_items_names()):
-            ds_structure_type = 2
+        for item_name in ds.get_items_names():
+            if not any(prefix in item_name for prefix in prefixes):
+                ds_structure_type = 1
+                break
 
         if ds_structure_type == 2:
             if not sly.fs.file_exists(color_map_txt_path):
@@ -175,6 +175,7 @@ def convert_volume_project(local_project_dir: str, segmentation_type: str) -> st
             res_path = ds_path / res_name
 
             volume_info = g.api.volume.get_info_by_name(curr_ds_info.id, name)
+            anns_need_reorientation = False
             use_remote_link = volume_info.meta is not None and "remote_path" in volume_info.meta
             if use_remote_link:
                 remote_path = volume_info.meta["remote_path"]
@@ -189,6 +190,18 @@ def convert_volume_project(local_project_dir: str, segmentation_type: str) -> st
                     remote_ext = "".join(Path(remote_path).suffixes)
                     res_path = Path(str(res_path)[: -len(ext)]).with_suffix(remote_ext)
                 g.api.storage.download(g.TEAM_ID, remote_path, res_path)
+                original_nifti = nib.load(res_path)
+                original_orientation = nib.orientations.io_orientation(original_nifti.affine)
+                orig_ax_code = "".join(original_orientation)
+                anns_need_reorientation = orig_ax_code != "RAS"
+
+                sly.logger.info(f"Original NIFTI file has {orig_ax_code} orientation")
+                if anns_need_reorientation:
+                    sly.logger.info(
+                        "Annotations need reorientation to {} coordinate system".format(
+                            orig_ax_code
+                        )
+                    )
             else:
                 sly.logger.info(f"Converting {name} to NIfTI")
                 convert_nrrd_to_nifti(volume_path, res_path)
@@ -242,32 +255,37 @@ def convert_volume_project(local_project_dir: str, segmentation_type: str) -> st
                         labels_dir.mkdir(parents=True, exist_ok=True)
                         label_path = labels_dir / f"{entity_name}{ext}"
                     else:
-                        prefix = PlanePrefix(short_name[:3])
                         idx = 1
-                        label_path = ds_path / f"{prefix}_inference_{idx}{ext}"
+                        label_path = ds_path / (short_name.replace("anatomic", "inference") + ext)
                         while label_path.exists():
                             idx += 1
-                            label_path = ds_path / f"{prefix}_inference_{idx}{ext}"
+                            label_path = ds_path / (
+                                short_name.replace("anatomic", "inference") + f"_{idx}" + ext
+                            )
 
                     return label_path
 
-                def _save_ann(ent_to_npy, ext, volume_meta, affine=None):
+                def _save_ann(ent_to_npy, ext, volume_meta, affine=None, original_orientation=None):
                     for entity_name, npy in ent_to_npy.items():
                         label_path = _get_label_path(entity_name, ext)
                         label_nifti = nib.Nifti1Image(npy, affine)
+                        if original_orientation is not None:
+                            target_ornt = nib.orientations.axcodes2ornt(original_orientation)
+                            label_nifti = label_nifti.as_reoriented(target_ornt)
+                            sly.logger.debug(
+                                f"Reoriented ann to {"".join(original_orientation)} orientation")
                         nib.save(label_nifti, label_path)
 
                 nifti = nib.load(res_path)
-                reordered_to_ras_nifti = nib.as_closest_canonical(nifti)
-                affine = reordered_to_ras_nifti.affine
+                affine = nib.as_closest_canonical(nifti).affine
+                original_ax_code = original_orientation if anns_need_reorientation else None
 
                 if ds_structure_type == 1:
-                    _save_ann(cls_to_npy, ext, volume_meta, affine)
+                    mapping = cls_to_npy
                 else:
-                    if segmentation_type == "semantic":
-                        _save_ann({ds.name: semantic}, ext, volume_meta, affine)
-                    else:
-                        _save_ann(instances, ext, volume_meta, affine)
+                    mapping = instances if segmentation_type != "semantic" else {ds.name: semantic}
+                    
+                _save_ann(mapping, ext, volume_meta, affine, original_ax_code)
 
     sly.logger.info(f"Converted project to NIfTI")
 

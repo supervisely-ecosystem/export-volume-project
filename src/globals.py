@@ -39,6 +39,7 @@ except KeyError:
 assert DATASET_ID or PROJECT_ID
 
 format = os.getenv("modal.state.format", "sly")
+sly.logger.debug(f"Format: {format}")
 segmentation_type = (
     None if format == "sly" else os.getenv("modal.state.segmentationType", "semantic")
 )

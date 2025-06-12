@@ -271,29 +271,25 @@ def convert_volume_project(local_project_dir: str, segmentation_type: str) -> st
                     return label_path
 
                 def _save_ann(ent_to_npy, ext, affine=None, original_orientation=None):
-                    ornt = io_orientation(affine)  # shape (3,2): [(in_axis, direction), …]
-                    to_flip = [i for i, (_, d) in enumerate(ornt) if d < 0]
-                    if to_flip:
-                        sly.logger.debug(
-                            f"Annotation will be flipped along axes: {to_flip} "
-                            f"({', '.join([PlanePrefix(i).value for i in to_flip])})"
-                        )
+                    import SimpleITK as sitk
 
                     for entity_name, npy in ent_to_npy.items():
-                        if to_flip:
-                            npy = np.flip(npy, axis=tuple(to_flip))
-
                         label_path = _get_label_path(entity_name, ext)
-                        img = nib.Nifti1Image(npy, affine)
+                        img_sitk = sitk.GetImageFromArray(npy.astype(np.uint8))
+                        img_sitk.SetDirection(tuple(affine[:3, :3].flatten()))
+                        img_sitk.SetOrigin(tuple(affine[:3, 3]))
+                        img_sitk.SetSpacing(tuple(np.sqrt(np.sum(affine[:3, :3] ** 2, axis=0))))
+                        sitk.WriteImage(img_sitk, str(label_path))
+                        # img = nib.Nifti1Image(npy, affine)  # For orientation/debug logging only
 
-                        if original_orientation is not None:
-                            target_ornt = nib.orientations.axcodes2ornt(original_orientation)
-                            img = img.as_reoriented(target_ornt)
+                        # if original_orientation is not None:
+                        #     target_ornt = nib.orientations.axcodes2ornt(original_orientation)
+                        #     img = img.as_reoriented(target_ornt)
 
-                        nib.save(img, label_path)
-                        sly.logger.debug(
-                            f"Exported annotation uses {affine_to_code(img.affine)} orientation"
-                        )
+                        # nib.save(img, label_path)
+                        # sly.logger.debug(
+                        #     f"Exported annotation uses {affine_to_code(img.affine)} orientation"
+                        # )
 
                 space_dir = volume_meta.get("space_directions")
                 space_origin = volume_meta.get("space_origin")

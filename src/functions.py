@@ -121,6 +121,10 @@ def convert_volume_project(local_project_dir: str, segmentation_type: str) -> st
     import numpy as np
     from pathlib import Path
 
+    affine_to_code = lambda affine: "".join(
+        nib.orientations.ornt2axcodes(nib.orientations.io_orientation(affine))
+    )
+
     project_id = g.get_project_id()
 
     project_fs = sly.VolumeProject(local_project_dir, mode=sly.OpenMode.READ)
@@ -276,17 +280,15 @@ def convert_volume_project(local_project_dir: str, segmentation_type: str) -> st
                                 f"Reoriented ann to {''.join(original_orientation)} orientation"
                             )
                         nib.save(label_nifti, label_path)
-                        orient = nib.orientations.io_orientation(label_nifti.affine)
-                        axcodes = nib.orientations.ornt2axcodes(orient)
                         sly.logger.debug(
-                            "Exported annotation uses {} orientation".format("".join(axcodes))
+                            "Exported annotation uses {} orientation".format(
+                                affine_to_code(label_nifti.affine)
+                            )
                         )
 
                 nifti = nib.load(res_path)
-                orientation = nib.orientations.io_orientation(nifti.affine)
-                axcodes = nib.orientations.ornt2axcodes(orientation)
                 sly.logger.debug(
-                    "Exported NIfTI volume uses {} orientation".format("".join(axcodes))
+                    "Exported NIfTI volume uses {} orientation".format(affine_to_code(nifti.affine))
                 )
                 affine = nib.as_closest_canonical(nifti).affine
                 original_ax_code = original_orientation if anns_need_reorientation else None

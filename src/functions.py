@@ -296,14 +296,14 @@ def convert_volume_project(local_project_dir: str, segmentation_type: str) -> st
                     affine[:3, :3] = space_dir
                     affine[:3, 3] = space_origin
 
-                original_ax_code = original_orientation if anns_need_reorientation else None
+                axiscode = original_orientation if anns_need_reorientation else None
 
                 if ds_structure_type == 1:
                     mapping = cls_to_npy
                 else:
                     mapping = instances if segmentation_type != "semantic" else {ds.name: semantic}
 
-                _save_ann(mapping, ext, volume_meta, affine, original_ax_code)
+                _save_ann(mapping, ext, volume_meta, affine, axiscode)
 
     sly.logger.info(f"Converted project to NIfTI")
 

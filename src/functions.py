@@ -276,17 +276,17 @@ def convert_volume_project(local_project_dir: str, segmentation_type: str) -> st
                                 f"Reoriented ann to {''.join(original_orientation)} orientation"
                             )
                         nib.save(label_nifti, label_path)
+                        orient = nib.orientations.io_orientation(label_nifti.affine)
+                        axcodes = nib.orientations.ornt2axcodes(orient)
                         sly.logger.debug(
-                            "Exported annotation uses {} orientation".format(
-                                "".join(nib.orientations.io_orientation(label_nifti.affine))
-                            )
+                            "Exported annotation uses {} orientation".format("".join(axcodes))
                         )
 
                 nifti = nib.load(res_path)
+                orientation = nib.orientations.io_orientation(nifti.affine)
+                axcodes = nib.orientations.ornt2axcodes(orientation)
                 sly.logger.debug(
-                    "Exported NIfTI volume uses {} orientation".format(
-                        "".join(nib.orientations.io_orientation(nifti.affine))
-                    )
+                    "Exported NIfTI volume uses {} orientation".format("".join(axcodes))
                 )
                 affine = nib.as_closest_canonical(nifti).affine
                 original_ax_code = original_orientation if anns_need_reorientation else None

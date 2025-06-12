@@ -209,7 +209,7 @@ def convert_volume_project(local_project_dir: str, segmentation_type: str) -> st
             else:
                 sly.logger.info(f"Converting {name} to NIfTI")
                 # Read NRRD file using nrrd module
-                volume_np, nrrd_header = nrrd.read(volume_path)
+                volume_np, nrrd_header = sly.volume.read_nrrd_serie_volume_np(volume_path)
                 # Prepare affine matrix from NRRD header
                 space_directions = nrrd_header.get("space directions")
                 space_origin = nrrd_header.get("space origin")

@@ -287,11 +287,10 @@ def convert_volume_project(local_project_dir: str, segmentation_type: str) -> st
                             )
                         )
 
-                # affine = nib.as_closest_canonical(nifti).affine
                 space_dir = volume_meta.get("space_directions")
                 space_origin = volume_meta.get("space_origin")
                 if space_dir is None or space_origin is None:
-                    affine = nib.load(res_path).affine
+                    affine = nib.as_closest_canonical(nib.load(res_path)).affine
                 else:
                     affine = np.eye(4)
                     affine[:3, :3] = space_dir

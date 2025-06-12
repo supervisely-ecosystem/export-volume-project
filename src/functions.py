@@ -290,7 +290,8 @@ def convert_volume_project(local_project_dir: str, segmentation_type: str) -> st
                 sly.logger.debug(
                     "Exported NIfTI volume uses {} orientation".format(affine_to_code(nifti.affine))
                 )
-                affine = nib.as_closest_canonical(nifti).affine
+                # affine = nib.as_closest_canonical(nifti).affine
+                affine = nifti.affine
                 original_ax_code = original_orientation if anns_need_reorientation else None
 
                 if ds_structure_type == 1:

@@ -36,7 +36,7 @@ try:
 except KeyError:
     DATASET_ID = None
 
-assert DATASET_ID or PROJECT_ID
+assert DATASET_ID or PROJECT_ID, "Either DATASET_ID or PROJECT_ID must be provided"
 
 format = os.getenv("modal.state.format", "sly")
 sly.logger.debug(f"Format: {format}")

@@ -273,7 +273,8 @@ def convert_volume_project(local_project_dir: str, segmentation_type: str) -> st
                             target_ornt = nib.orientations.axcodes2ornt(original_orientation)
                             label_nifti = label_nifti.as_reoriented(target_ornt)
                             sly.logger.debug(
-                                f"Reoriented ann to {"".join(original_orientation)} orientation")
+                                f"Reoriented ann to {''.join(original_orientation)} orientation"
+                            )
                         nib.save(label_nifti, label_path)
 
                 nifti = nib.load(res_path)
@@ -284,7 +285,7 @@ def convert_volume_project(local_project_dir: str, segmentation_type: str) -> st
                     mapping = cls_to_npy
                 else:
                     mapping = instances if segmentation_type != "semantic" else {ds.name: semantic}
-                    
+
                 _save_ann(mapping, ext, volume_meta, affine, original_ax_code)
 
     sly.logger.info(f"Converted project to NIfTI")

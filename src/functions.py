@@ -208,20 +208,7 @@ def convert_volume_project(local_project_dir: str, segmentation_type: str) -> st
                     )
             else:
                 sly.logger.info(f"Converting {name} to NIfTI")
-                # Read NRRD file using nrrd module
-                volume_np, nrrd_header = sly.volume.read_nrrd_serie_volume_np(volume_path)
-                # Prepare affine matrix from NRRD header
-                space_directions = nrrd_header.get("space directions")
-                space_origin = nrrd_header.get("space origin")
-                if space_directions is not None and space_origin is not None:
-                    affine = np.eye(4)
-                    affine[:3, :3] = np.array(space_directions)
-                    affine[:3, 3] = np.array(space_origin)
-                else:
-                    affine = np.eye(4)
-                # Save as NIfTI using nibabel
-                nifti_img = nib.Nifti1Image(volume_np, affine)
-                nib.save(nifti_img, res_path)
+                convert_nrrd_to_nifti(volume_path, res_path)
 
             if len(ann.objects) > 0:
                 volume_np, volume_meta = sly.volume.read_nrrd_serie_volume_np(volume_path)

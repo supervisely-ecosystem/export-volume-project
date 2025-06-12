@@ -286,12 +286,16 @@ def convert_volume_project(local_project_dir: str, segmentation_type: str) -> st
                             )
                         )
 
-                nifti = nib.load(res_path)
-                sly.logger.debug(
-                    "Exported NIfTI volume uses {} orientation".format(affine_to_code(nifti.affine))
-                )
                 # affine = nib.as_closest_canonical(nifti).affine
-                affine = nifti.affine
+                space_dir = volume_meta.get("space_directions")
+                space_origin = volume_meta.get("space_origin")
+                if space_dir is None or space_origin is None:
+                    affine = nib.load(res_path).affine
+                else:
+                    affine = np.eye(4)
+                    affine[:3, :3] = space_dir
+                    affine[:3, 3] = space_origin
+
                 original_ax_code = original_orientation if anns_need_reorientation else None
 
                 if ds_structure_type == 1:

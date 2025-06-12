@@ -271,35 +271,21 @@ def convert_volume_project(local_project_dir: str, segmentation_type: str) -> st
                     return label_path
 
                 def _save_ann(ent_to_npy, ext, affine=None, original_orientation=None):
-                    import SimpleITK as sitk
-
                     for entity_name, npy in ent_to_npy.items():
                         label_path = _get_label_path(entity_name, ext)
-                        img_sitk = sitk.GetImageFromArray(npy.astype(np.uint8))
-                        img_sitk.SetDirection(tuple(affine[:3, :3].flatten()))
-                        img_sitk.SetOrigin(tuple(affine[:3, 3]))
-                        img_sitk.SetSpacing(tuple(np.sqrt(np.sum(affine[:3, :3] ** 2, axis=0))))
-                        sitk.WriteImage(img_sitk, str(label_path))
-                        # img = nib.Nifti1Image(npy, affine)  # For orientation/debug logging only
+                        img = nib.Nifti1Image(npy, affine)
 
                         # if original_orientation is not None:
                         #     target_ornt = nib.orientations.axcodes2ornt(original_orientation)
                         #     img = img.as_reoriented(target_ornt)
 
-                        # nib.save(img, label_path)
-                        # sly.logger.debug(
-                        #     f"Exported annotation uses {affine_to_code(img.affine)} orientation"
-                        # )
+                        img = nib.as_closest_canonical(img)
+                        nib.save(img, label_path)
+                        sly.logger.debug(
+                            f"Exported annotation uses {affine_to_code(img.affine)} orientation"
+                        )
 
-                space_dir = volume_meta.get("space_directions")
-                space_origin = volume_meta.get("space_origin")
-                if space_dir is None or space_origin is None:
-                    affine = nib.as_closest_canonical(nib.load(res_path)).affine
-                else:
-                    affine = np.eye(4)
-                    affine[:3, :3] = space_dir
-                    affine[:3, 3] = space_origin
-
+                affine = nib.as_closest_canonical(nib.load(res_path)).affine
                 axiscode = original_orientation if anns_need_reorientation else None
 
                 if ds_structure_type == 1:

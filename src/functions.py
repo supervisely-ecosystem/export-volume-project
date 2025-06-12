@@ -269,10 +269,12 @@ def convert_volume_project(local_project_dir: str, segmentation_type: str) -> st
 
                     return label_path
 
-                def _save_ann(ent_to_npy, ext, volume_meta, affine=None, original_orientation=None):
+                def _save_ann(ent_to_npy, ext, affine=None, original_orientation=None):
                     for entity_name, npy in ent_to_npy.items():
+                        # Flip X and Y axes if needed (axis 0 and 1)
+                        npy_flipped = np.flip(npy, axis=(0, 1))
                         label_path = _get_label_path(entity_name, ext)
-                        label_nifti = nib.Nifti1Image(npy, affine)
+                        label_nifti = nib.Nifti1Image(npy_flipped, affine)
                         if original_orientation is not None:
                             target_ornt = nib.orientations.axcodes2ornt(original_orientation)
                             label_nifti = label_nifti.as_reoriented(target_ornt)

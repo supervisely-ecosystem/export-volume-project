@@ -304,7 +304,7 @@ def convert_volume_project(local_project_dir: str, segmentation_type: str) -> st
                 else:
                     mapping = instances if segmentation_type != "semantic" else {ds.name: semantic}
 
-                _save_ann(mapping, ext, volume_meta, affine, axiscode)
+                _save_ann(mapping, ext, affine, axiscode)
 
     sly.logger.info(f"Converted project to NIfTI")
 

@@ -60,6 +60,7 @@ def download(api: sly.Api, task_id, context, state, app_logger):
             convert_all(download_dir, project_meta, key_id_map)
 
     elif g.format == "nifti":
+        app_logger.debug("Converting to NIfTI format...")
         f.convert_volume_project(download_dir, g.segmentation_type)
     elif g.format == "meshes":
         download_dir = f.write_meshes(download_dir, g.mesh_export_type)
@@ -71,6 +72,7 @@ def download(api: sly.Api, task_id, context, state, app_logger):
     archive_dir = os.path.dirname(download_dir) if not g.format == "meshes" else download_dir
     sly.fs.archive_directory(archive_dir, result_archive)
     app_logger.info("Result directory is archived")
+    app_logger.debug("Archive path: {!r}".format(result_archive))
 
     upload_progress = []
     remote_archive_path = os.path.join(

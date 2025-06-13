@@ -90,7 +90,7 @@ def convert_nrrd_to_nifti(nrrd_path: str, nifti_path: str) -> None:
     sitk.WriteImage(img, nifti_path)
 
 
-def convert_volume_project(local_project_dir: str, segmentation_type: str) -> str:
+def convert_project_to_nifti(local_project_dir: str, segmentation_type: str) -> str:
     """
     Convert a volume project to NIfTI format.
 
@@ -195,7 +195,14 @@ def convert_volume_project(local_project_dir: str, segmentation_type: str) -> st
 
             if len(ann.objects) > 0:
                 volume_np, volume_meta = sly.volume.read_nrrd_serie_volume_np(volume_path)
-
+                direction = np.array(volume_meta["directions"]).reshape(3, 3)
+                spacing = np.array(volume_meta["spacing"])
+                space_directions = (direction.T * spacing[:, None]).tolist()
+                volume_header = {
+                    "space": "right-anterior-superior",
+                    "space directions": space_directions,
+                    "space origin": volume_meta.get("origin", None),
+                }
                 semantic = np.zeros(volume_np.shape, dtype=np.uint8)
                 instances = {}
                 cls_to_npy = {
@@ -204,19 +211,21 @@ def convert_volume_project(local_project_dir: str, segmentation_type: str) -> st
                 }
 
                 mask_dir = ds.get_mask_dir(name)
-                geometries_dict = {}
 
                 if mask_dir is not None and sly.fs.dir_exists(mask_dir):
                     mask_paths = sly.fs.list_files(mask_dir, valid_extensions=[".nrrd"])
-                    geometries_dict.update(sly.Mask3D._bytes_from_nrrd_batch(mask_paths))
-
+                    nrrd_data_dict = {}
+                    for mask_path in mask_paths:
+                        key = os.path.basename(mask_path).replace(".nrrd", "")
+                        data, _ = nrrd.read(mask_path)
+                        nrrd_data_dict[key] = data
                 for sf in ann.spatial_figures:
                     try:
-                        geometry_bytes = geometries_dict[sf.key().hex]
-                        mask3d = sly.Mask3D.from_bytes(geometry_bytes)
+                        mask_data = nrrd_data_dict[sf.key().hex]
+                        mask3d = sly.Mask3D(mask_data, volume_header=volume_header)
                     except Exception as e:
                         sly.logger.warning(
-                            f"Skipping spatial figure for class '{sf.volume_object.obj_class.name}': {str(e)}"
+                            f"Skipping spatial figure {sf.key().hex} for class '{sf.volume_object.obj_class.name}': {str(e)}"
                         )
                         continue
 

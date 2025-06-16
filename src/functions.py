@@ -90,7 +90,7 @@ def convert_nrrd_to_nifti(nrrd_path: str, nifti_path: str) -> None:
     sitk.WriteImage(img, nifti_path)
 
 
-def convert_volume_project(local_project_dir: str, segmentation_type: str) -> str:
+def convert_project_to_nifti(local_project_dir: str, segmentation_type: str) -> str:
     """
     Convert a volume project to NIfTI format.
 
@@ -152,10 +152,12 @@ def convert_volume_project(local_project_dir: str, segmentation_type: str) -> st
         ds_path = new_project_dir / ds.name
         ds_path.mkdir(parents=True, exist_ok=True)
 
-        ds_structure_type = 1
+        ds_structure_type = 2
         prefixes = [PlanePrefix.AXIAL, PlanePrefix.CORONAL, PlanePrefix.SAGITTAL]
-        if all(name[:3] in prefixes for name in ds.get_items_names()):
-            ds_structure_type = 2
+        for item_name in ds.get_items_names():
+            if not any(prefix in item_name for prefix in prefixes):
+                ds_structure_type = 1
+                break
 
         if ds_structure_type == 2:
             if not sly.fs.file_exists(color_map_txt_path):
@@ -195,7 +197,14 @@ def convert_volume_project(local_project_dir: str, segmentation_type: str) -> st
 
             if len(ann.objects) > 0:
                 volume_np, volume_meta = sly.volume.read_nrrd_serie_volume_np(volume_path)
-
+                direction = np.array(volume_meta["directions"]).reshape(3, 3)
+                spacing = np.array(volume_meta["spacing"])
+                space_directions = (direction.T * spacing[:, None]).tolist()
+                volume_header = {
+                    "space": "right-anterior-superior",
+                    "space directions": space_directions,
+                    "space origin": volume_meta.get("origin", None),
+                }
                 semantic = np.zeros(volume_np.shape, dtype=np.uint8)
                 instances = {}
                 cls_to_npy = {
@@ -204,19 +213,21 @@ def convert_volume_project(local_project_dir: str, segmentation_type: str) -> st
                 }
 
                 mask_dir = ds.get_mask_dir(name)
-                geometries_dict = {}
 
                 if mask_dir is not None and sly.fs.dir_exists(mask_dir):
                     mask_paths = sly.fs.list_files(mask_dir, valid_extensions=[".nrrd"])
-                    geometries_dict.update(sly.Mask3D._bytes_from_nrrd_batch(mask_paths))
-
+                    nrrd_data_dict = {}
+                    for mask_path in mask_paths:
+                        key = os.path.basename(mask_path).replace(".nrrd", "")
+                        data, _ = nrrd.read(mask_path)
+                        nrrd_data_dict[key] = data
                 for sf in ann.spatial_figures:
                     try:
-                        geometry_bytes = geometries_dict[sf.key().hex]
-                        mask3d = sly.Mask3D.from_bytes(geometry_bytes)
+                        mask_data = nrrd_data_dict[sf.key().hex]
+                        mask3d = sly.Mask3D(mask_data, volume_header=volume_header)
                     except Exception as e:
                         sly.logger.warning(
-                            f"Skipping spatial figure for class '{sf.volume_object.obj_class.name}': {str(e)}"
+                            f"Skipping spatial figure {sf.key().hex} for class '{sf.volume_object.obj_class.name}': {str(e)}"
                         )
                         continue
 
@@ -242,32 +253,30 @@ def convert_volume_project(local_project_dir: str, segmentation_type: str) -> st
                         labels_dir.mkdir(parents=True, exist_ok=True)
                         label_path = labels_dir / f"{entity_name}{ext}"
                     else:
-                        prefix = PlanePrefix(short_name[:3])
                         idx = 1
-                        label_path = ds_path / f"{prefix}_inference_{idx}{ext}"
+                        label_path = ds_path / (short_name.replace("anatomic", "inference") + ext)
                         while label_path.exists():
                             idx += 1
-                            label_path = ds_path / f"{prefix}_inference_{idx}{ext}"
+                            label_path = ds_path / (
+                                short_name.replace("anatomic", "inference") + f"_{idx}" + ext
+                            )
 
                     return label_path
 
-                def _save_ann(ent_to_npy, ext, volume_meta, affine=None):
+                def _save_ann(ent_to_npy, ext, affine=None):
                     for entity_name, npy in ent_to_npy.items():
                         label_path = _get_label_path(entity_name, ext)
                         label_nifti = nib.Nifti1Image(npy, affine)
                         nib.save(label_nifti, label_path)
 
-                nifti = nib.load(res_path)
-                reordered_to_ras_nifti = nib.as_closest_canonical(nifti)
-                affine = reordered_to_ras_nifti.affine
+                volume_affine = nib.as_closest_canonical(nib.load(res_path)).affine
 
                 if ds_structure_type == 1:
-                    _save_ann(cls_to_npy, ext, volume_meta, affine)
+                    mapping = cls_to_npy
                 else:
-                    if segmentation_type == "semantic":
-                        _save_ann({ds.name: semantic}, ext, volume_meta, affine)
-                    else:
-                        _save_ann(instances, ext, volume_meta, affine)
+                    mapping = instances if segmentation_type != "semantic" else {ds.name: semantic}
+
+                _save_ann(mapping, ext, volume_affine)
 
     sly.logger.info(f"Converted project to NIfTI")
 

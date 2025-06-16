@@ -152,10 +152,12 @@ def convert_project_to_nifti(local_project_dir: str, segmentation_type: str) -> 
         ds_path = new_project_dir / ds.name
         ds_path.mkdir(parents=True, exist_ok=True)
 
-        ds_structure_type = 1
+        ds_structure_type = 2
         prefixes = [PlanePrefix.AXIAL, PlanePrefix.CORONAL, PlanePrefix.SAGITTAL]
-        if all(name[:3] in prefixes for name in ds.get_items_names()):
-            ds_structure_type = 2
+        for item_name in ds.get_items_names():
+            if not any(prefix in item_name for prefix in prefixes):
+                ds_structure_type = 1
+                break
 
         if ds_structure_type == 2:
             if not sly.fs.file_exists(color_map_txt_path):
@@ -251,32 +253,30 @@ def convert_project_to_nifti(local_project_dir: str, segmentation_type: str) -> 
                         labels_dir.mkdir(parents=True, exist_ok=True)
                         label_path = labels_dir / f"{entity_name}{ext}"
                     else:
-                        prefix = PlanePrefix(short_name[:3])
                         idx = 1
-                        label_path = ds_path / f"{prefix}_inference_{idx}{ext}"
+                        label_path = ds_path / (short_name.replace("anatomic", "inference") + ext)
                         while label_path.exists():
                             idx += 1
-                            label_path = ds_path / f"{prefix}_inference_{idx}{ext}"
+                            label_path = ds_path / (
+                                short_name.replace("anatomic", "inference") + f"_{idx}" + ext
+                            )
 
                     return label_path
 
-                def _save_ann(ent_to_npy, ext, volume_meta, affine=None):
+                def _save_ann(ent_to_npy, ext, affine=None):
                     for entity_name, npy in ent_to_npy.items():
                         label_path = _get_label_path(entity_name, ext)
                         label_nifti = nib.Nifti1Image(npy, affine)
                         nib.save(label_nifti, label_path)
 
-                nifti = nib.load(res_path)
-                reordered_to_ras_nifti = nib.as_closest_canonical(nifti)
-                affine = reordered_to_ras_nifti.affine
+                volume_affine = nib.as_closest_canonical(nib.load(res_path)).affine
 
                 if ds_structure_type == 1:
-                    _save_ann(cls_to_npy, ext, volume_meta, affine)
+                    mapping = cls_to_npy
                 else:
-                    if segmentation_type == "semantic":
-                        _save_ann({ds.name: semantic}, ext, volume_meta, affine)
-                    else:
-                        _save_ann(instances, ext, volume_meta, affine)
+                    mapping = instances if segmentation_type != "semantic" else {ds.name: semantic}
+
+                _save_ann(mapping, ext, volume_affine)
 
     sly.logger.info(f"Converted project to NIfTI")
 

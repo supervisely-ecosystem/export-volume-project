@@ -5,7 +5,7 @@ import supervisely as sly
 from supervisely.io.fs import mkdir
 from supervisely.io.json import load_json_file
 from supervisely.volume_annotation.volume_annotation import VolumeAnnotation
-from supervisely.volume.stl_converter import matrix_from_nrrd_header
+from supervisely.convert.volume.nii import nii_volume_helper as helper
 
 
 def create_class2idx_map(project_meta: sly.ProjectMeta):
@@ -132,7 +132,46 @@ def convert_project_to_nifti(local_project_dir: str, segmentation_type: str) -> 
     new_project_dir.mkdir(parents=True, exist_ok=True)
 
     meta = project_fs.meta
-    color_map = {o.name: [i, o.color] for i, o in enumerate(meta.obj_classes, 1)}
+
+    def _find_pixel_values(descr: str) -> int:
+        """
+        Find the pixel value in the description string.
+        """
+        lines = descr.split("\n")
+        for line in lines:
+            if line.strip().startswith(helper.MASK_PIXEL_VALUE):
+                try:
+                    value_part = line.strip().split(helper.MASK_PIXEL_VALUE)[1]
+                    return int(value_part.strip())
+                except (IndexError, ValueError):
+                    continue
+        return None
+
+    mask_pixel_values = {
+        obj_class.name: _find_pixel_values(obj_class.description) for obj_class in meta.obj_classes
+    }
+
+    color_map = {}
+    used_indices = set()
+
+    # First assign original pixel_values (if they exist)
+    for obj_class in meta.obj_classes:
+        original_pixel_value = mask_pixel_values.get(obj_class.name)
+        if original_pixel_value is not None:
+            color_map[obj_class.name] = [original_pixel_value, obj_class.color]
+            used_indices.add(original_pixel_value)
+
+    # Then assign free indices to classes without original pixel_values
+    next_available_idx = 1
+    for obj_class in meta.obj_classes:
+        if obj_class.name not in color_map:
+            # Find the next available index
+            while next_available_idx in used_indices:
+                next_available_idx += 1
+
+            color_map[obj_class.name] = [next_available_idx, obj_class.color]
+            used_indices.add(next_available_idx)
+            next_available_idx += 1
 
     color_map_to_txt = []
     for name, (idx, color) in color_map.items():
@@ -222,30 +261,31 @@ def convert_project_to_nifti(local_project_dir: str, segmentation_type: str) -> 
                         data, _ = nrrd.read(mask_path)
                         nrrd_data_dict[key] = data
                 for sf in ann.spatial_figures:
+                    class_name = sf.volume_object.obj_class.name
+
                     try:
                         mask_data = nrrd_data_dict[sf.key().hex]
                         mask3d = sly.Mask3D(mask_data, volume_header=volume_header)
                     except Exception as e:
                         sly.logger.warning(
-                            f"Skipping spatial figure {sf.key().hex} for class '{sf.volume_object.obj_class.name}': {str(e)}"
+                            f"Skipping spatial figure {sf.key().hex} for class '{class_name}': {str(e)}"
                         )
                         continue
 
                     if ds_structure_type == 2:
+                        pixel_value = color_map[class_name][0]
                         if segmentation_type == "semantic":
-                            cls_id = color_map[sf.volume_object.obj_class.name][0]
-                            semantic[mask3d.data] = cls_id
-                        else:
-                            cls_id = color_map[sf.volume_object.obj_class.name][0]
-                            if cls_id not in instances.keys():
-                                instances[cls_id] = np.zeros(volume_np.shape, dtype=np.uint8)
-                            idx = instances[cls_id].max() + 1
-                            instances[cls_id][mask3d.data] = idx
-                    else:
+                            semantic[mask3d.data] = pixel_value
+                        else:  # instance segmentation
+                            if pixel_value not in instances.keys():
+                                instances[pixel_value] = np.zeros(volume_np.shape, dtype=np.uint8)
+                            idx = instances[pixel_value].max() + 1
+                            instances[pixel_value][mask3d.data] = idx
+                    else:  # ds_structure_type == 1
                         val = 1
                         if segmentation_type != "semantic":
-                            val = cls_to_npy[sf.volume_object.obj_class.name].max() + 1
-                        cls_to_npy[sf.volume_object.obj_class.name][mask3d.data] = val
+                            val = cls_to_npy[class_name].max() + 1
+                        cls_to_npy[class_name][mask3d.data] = val
 
                 def _get_label_path(entity_name, ext):
                     if ds_structure_type == 1:

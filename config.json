@@ -3,7 +3,7 @@
 	"type": "app",
 	"categories": ["dicom", "export"],
 	"description": "To Supervisely format, compatible with 3D Slicer, MITK",
-	"docker_image": "supervisely/import-export:6.73.382",
+	"docker_image": "supervisely/import-export:6.73.384",
 	"instance_version": "6.13.1",
 	"main_script": "src/main.py",
 	"modal_template": "src/modal.html",

@@ -347,10 +347,17 @@ def convert_project_to_nifti(local_project_dir: str, segmentation_type: str) -> 
 
                 _save_ann(mapping, ext, volume_affine)
 
-                if ds_structure_type == 2 and segmentation_type == "semantic" and len(custom_data) > 0:
+                if (
+                    ds_structure_type == 2
+                    and segmentation_type == "semantic"
+                    and len(custom_data) > 0
+                ):
                     csv_path = ds_path / f"{short_name}.csv"
+                    if "anatomic" in short_name:
+                        csv_path = ds_path / f"{short_name.replace('anatomic', 'score')}.csv"
                     with open(csv_path, "w") as f:
                         col_names = [f"Label-{color_map[name][0]}" for name in used_labels]
+                        col_names = sorted(col_names, key=lambda x: int(x.split("-")[1]))
                         f.write(",".join(["Layer"] + col_names) + "\n")
                         for layer, scores in custom_data.items():
                             scores_str = [str(scores.get(name, 0.0)) for name in col_names]

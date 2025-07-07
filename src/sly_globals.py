@@ -16,11 +16,12 @@ sys.path.append(root_source_dir)
 if sly.is_development():
     load_dotenv("debug.env")
     load_dotenv(os.path.expanduser("~/supervisely.env"))
-    sly.fs.clean_dir(os.environ["DEBUG_APP_DIR"])
+    if sly.fs.dir_exists(os.environ["DEBUG_APP_DIR"]):
+        sly.fs.clean_dir(os.environ["DEBUG_APP_DIR"])
 
 
 api: sly.Api = sly.Api.from_env()
-my_app: AppService = AppService()
+# my_app: AppService = AppService()
 
 TEAM_ID = int(os.environ["context.teamId"])
 WORKSPACE_ID = int(os.environ["context.workspaceId"])

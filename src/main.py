@@ -9,7 +9,7 @@ from supervisely.project.volume_project import download_volume_project
 from supervisely.video_annotation.key_id_map import KeyIdMap
 
 import functions as f
-import globals as g
+import sly_globals as g
 import workflow as w
 
 

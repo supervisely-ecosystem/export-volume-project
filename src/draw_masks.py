@@ -14,7 +14,7 @@ from supervisely.geometry.mask_3d import Mask3D
 from supervisely.geometry.any_geometry import AnyGeometry
 
 import functions as f
-import globals as g
+import sly_globals as g
 
 
 def segment_object(

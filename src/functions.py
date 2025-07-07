@@ -1,5 +1,7 @@
+from collections import defaultdict
 import os
 
+from sly_globals import PlanePrefix
 import nrrd
 import supervisely as sly
 from supervisely.io.fs import mkdir
@@ -90,6 +92,14 @@ def convert_nrrd_to_nifti(nrrd_path: str, nifti_path: str) -> None:
     sitk.WriteImage(img, nifti_path)
 
 
+plane_xyz_map = {
+    PlanePrefix.SAGITTAL: "1-0-0",
+    PlanePrefix.CORONAL: "0-1-0",
+    PlanePrefix.AXIAL: "0-0-1",
+}
+get_xyz = lambda x: plane_xyz_map.get(x, "0-0-1")
+
+
 def convert_project_to_nifti(local_project_dir: str, segmentation_type: str) -> str:
     """
     Convert a volume project to NIfTI format.
@@ -118,8 +128,7 @@ def convert_project_to_nifti(local_project_dir: str, segmentation_type: str) -> 
     # └── 🩻 sag_inference_1.nii
 
     import nibabel as nib
-    import globals as g
-    from globals import PlanePrefix
+    import sly_globals as g
     import numpy as np
     from pathlib import Path
 
@@ -250,6 +259,26 @@ def convert_project_to_nifti(local_project_dir: str, segmentation_type: str) -> 
                     obj.obj_class.name: np.zeros(volume_np.shape, dtype=np.uint8)
                     for obj in ann.objects
                 }
+                custom_data = defaultdict(lambda: defaultdict(float))
+
+                if ds_structure_type == 2:
+                    used_labels = set()
+                    for fig in ann.figures + ann.spatial_figures:
+                        if fig.custom_data:
+                            plane = None
+                            for key in prefixes:
+                                if key in short_name:
+                                    plane = key
+                                    break
+                            plane = get_xyz(plane)
+                            if plane is not None and plane in fig.custom_data:
+                                label_index = color_map[fig.volume_object.obj_class.name][0]
+                                for _frame_idx, _data in fig.custom_data[plane].items():
+                                    if "score" in _data:
+                                        custom_data[_frame_idx][f"Label-{label_index}"] = _data[
+                                            "score"
+                                        ]
+                                        used_labels.add(fig.volume_object.obj_class.name)
 
                 mask_dir = ds.get_mask_dir(name)
 
@@ -318,6 +347,22 @@ def convert_project_to_nifti(local_project_dir: str, segmentation_type: str) -> 
 
                 _save_ann(mapping, ext, volume_affine)
 
+                if (
+                    ds_structure_type == 2
+                    and segmentation_type == "semantic"
+                    and len(custom_data) > 0
+                ):
+                    csv_path = ds_path / f"{short_name}.csv"
+                    if "anatomic" in short_name:
+                        csv_path = ds_path / f"{short_name.replace('anatomic', 'score')}.csv"
+                    with open(csv_path, "w") as f:
+                        col_names = [f"Label-{color_map[name][0]}" for name in used_labels]
+                        col_names = sorted(col_names, key=lambda x: int(x.split("-")[1]))
+                        f.write(",".join(["Layer"] + col_names) + "\n")
+                        for layer, scores in custom_data.items():
+                            scores_str = [str(scores.get(name, 0.0)) for name in col_names]
+                            f.write(",".join([str(layer)] + scores_str) + "\n")
+
     sly.logger.info(f"Converted project to NIfTI")
 
     sly.fs.remove_dir(local_project_dir)
@@ -334,7 +379,7 @@ def write_meshes(local_project_dir: str, mesh_export_type: str) -> str:
     """
     from supervisely.volume_annotation.constants import SPATIAL_FIGURES, KEY
     from pathlib import Path
-    from globals import api
+    from sly_globals import api
 
     project_fs = sly.VolumeProject(local_project_dir, mode=sly.OpenMode.READ)
     local_project_dir = Path(local_project_dir)

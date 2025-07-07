@@ -21,7 +21,7 @@ if sly.is_development():
 
 
 api: sly.Api = sly.Api.from_env()
-# my_app: AppService = AppService()
+my_app: AppService = AppService()
 
 TEAM_ID = int(os.environ["context.teamId"])
 WORKSPACE_ID = int(os.environ["context.workspaceId"])

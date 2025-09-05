@@ -6,3 +6,5 @@ venv
 supervisely
 __pycache__
 .DS_Store
+app_debug_dir
+app_debug_cache

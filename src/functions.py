@@ -384,6 +384,7 @@ def write_meshes(local_project_dir: str, mesh_export_type: str) -> str:
     project_fs = sly.VolumeProject(local_project_dir, mode=sly.OpenMode.READ)
     local_project_dir = Path(local_project_dir)
     out_dir = local_project_dir.with_name("meshes")
+    masks_found = False
 
     for ds in project_fs.datasets:
         ds: sly.VolumeDataset
@@ -394,6 +395,7 @@ def write_meshes(local_project_dir: str, mesh_export_type: str) -> str:
             ann = sly.VolumeAnnotation.from_json(ann_json, project_fs.meta)
             if len(ann.spatial_figures) == 0:
                 continue
+            masks_found = True
             fig_index = {f[KEY]: f["geometry"]["id"] for f in ann_json[SPATIAL_FIGURES]}
 
             export_folder = out_dir / ds.name / Path(name).stem
@@ -445,6 +447,9 @@ def write_meshes(local_project_dir: str, mesh_export_type: str) -> str:
                         f"Failed to write mesh for figure (id: {fig.geometry.sly_id}): {str(e)}"
                     )
                     continue
+
+    if not masks_found:
+        raise RuntimeError("No spatial figures with 3D geometry found in the project.")
 
     sly.logger.info(f"Finished downloading meshes")
     return str(out_dir)

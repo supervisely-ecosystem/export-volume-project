@@ -11,7 +11,7 @@
   <a href="#how-to-use">How To Use</a>
 </p>
 
-[![](https://img.shields.io/badge/supervisely-ecosystem-brightgreen)](https://ecosystem.supervisely.com/apps/export-volume-project)
+[![](https://img.shields.io/badge/supervisely-ecosystem-brightgreen)](../../../../supervisely-ecosystem/export-volume-project)
 [![](https://img.shields.io/badge/slack-chat-green.svg?logo=slack)](https://supervisely.com/slack)
 ![GitHub release (latest SemVer)](https://img.shields.io/github/v/release/supervisely-ecosystem/export-volume-project)
 [![views](https://app.supervisely.com/img/badges/views/supervisely-ecosystem/export-volume-project.png)](https://supervisely.com)
@@ -67,7 +67,7 @@ Version `v2.3.1`
 
 # How To Run
 
-1. Add [Export volumes project in Supervisely format](https://ecosystem.supervisely.com/apps/export-volume-project)
+1. Add [Export volumes project in Supervisely format](../../../../supervisely-ecosystem/export-volume-project)
 
    <img data-key="sly-module-link" data-module-slug="supervisely-ecosystem/export-volume-project" src="https://i.imgur.com/DnAVFlZ.png" width="450px" style='padding-bottom: 20px'/>
 
